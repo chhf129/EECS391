@@ -1,8 +1,5 @@
 package edu.cwru.sepia.agent;
 
-//This is a test commit
-
-
 import edu.cwru.sepia.action.Action;
 import edu.cwru.sepia.environment.model.history.History;
 import edu.cwru.sepia.environment.model.state.ResourceNode;
@@ -298,7 +295,19 @@ public class AstarAgent extends Agent {
      */
     private Stack<MapLocation> AstarSearch(MapLocation start, MapLocation goal, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations)
     {
-        // return an empty path
+    	/* A* outline:
+    	 * 		create StackMapLocations
+    	 * 		create open list- priority queue (Tuple(MapLocation, f(n)))
+    	 * 		create closed list- use ResourceLocs (can't move there and reomves an extra check)
+    	 * 		add initial loc to open list
+    	 * 		while open list isn't empty
+    	 * 			pop first element of open list
+    	 * 			find neighbors within map extents and not in closed list
+    	 * 			compute
+    	 * 			
+    	 */
+
+    	// return an empty path
         return new Stack<MapLocation>();
     }
 
