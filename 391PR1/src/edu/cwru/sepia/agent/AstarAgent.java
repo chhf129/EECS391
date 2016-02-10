@@ -323,25 +323,40 @@ public class AstarAgent extends Agent {
     	 * 			
     	 * 			
     	 */    	
-    	float[][] map = new float[xExtent][yExtent];
-     	for(int i = 0; i < xExtent; i++)
-     	{
-     		for(int j = 0; j < yExtent; j++)
-     		{
-     			map[i][j] = 1;
-     		}
-     	}
-         for(MapLocation resourceLocation : resourceLocations)
-         {
-         	map[resourceLocation.x][resourceLocation.y] = -1;
-         }
-         map[enemyFootmanLoc.x][enemyFootmanLoc.y]=-1;
     	PriorityQueue<MapLocation> openList=new PriorityQueue<MapLocation>();
-    	 LinkedList<MapLocation> closedList = new LinkedList<MapLocation>();
+    	LinkedList<MapLocation> closedList = new LinkedList<MapLocation>();
+    	closedList.addAll(resourceLocations);
+    	closedList.add(enemyFootmanLoc);
     	start.hValue=Chebyshev(start,goal);
+    	start.cost=0;
     	openList.add(start);
     	while(!openList.isEmpty()){
-    		
+    		MapLocation next = openList.poll();
+    		int x = next.x-1;
+    		int y = next.y;
+    		if (x>=0){
+    			boolean valid = true;
+    			for (MapLocation m:openList){
+    				if (x==m.x && y==m.y){
+    					valid = false;
+    					if (m.cost-1>next.cost){
+    						m.cost = next.cost+1;
+    						m.cameFrom = next;
+    					}
+    				}
+    			}
+    			for (MapLocation m: closedList){
+    				valid = valid && (x!=m.x && y!=m.y);
+    			}
+    			if (valid){
+    				MapLocation l = new MapLocation(x, y, next, next.cost+1, 0);
+    				l.hValue = Chebyshev(l, goal);
+    				l.fValue = l.cost+l.hValue;
+    				openList.add(l);
+    			}
+    			openList.remove(next);
+    			closedList.addFirst(next);
+    		}
     	}
     	// return an empty path
         return new Stack<MapLocation>();
