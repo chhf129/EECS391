@@ -1,6 +1,7 @@
 package edu.cwru.sepia.agent;
 
 import edu.cwru.sepia.action.Action;
+import edu.cwru.sepia.agent.AstarAgent.MapLocation;
 import edu.cwru.sepia.environment.model.history.History;
 import edu.cwru.sepia.environment.model.state.ResourceNode;
 import edu.cwru.sepia.environment.model.state.State;
@@ -31,6 +32,12 @@ public class AstarAgent extends Agent {
             this.cost = cost;
             this.hValue = hValue;
             this.fValue = this.cost + this.hValue;
+        }
+        public MapLocation(int x, int y, float hValue)
+        {
+            this.x = x;
+            this.y = y;
+            this.hValue = hValue;
         }
     }
 
@@ -315,13 +322,32 @@ public class AstarAgent extends Agent {
     	 * 			find neighbors within map extents and not in closed list
     	 * 			
     	 * 			
-    	 */
-        
+    	 */    	
+    	float[][] map = new float[xExtent][yExtent];
+     	for(int i = 0; i < xExtent; i++)
+     	{
+     		for(int j = 0; j < yExtent; j++)
+     		{
+     			map[i][j] = 1;
+     		}
+     	}
+         for(MapLocation resourceLocation : resourceLocations)
+         {
+         	map[resourceLocation.x][resourceLocation.y] = -1;
+         }
+         map[enemyFootmanLoc.x][enemyFootmanLoc.y]=-1;
+    	PriorityQueue<MapLocation> openList=new PriorityQueue<MapLocation>();
+    	 LinkedList<MapLocation> closedList = new LinkedList<MapLocation>();
+    	start.hValue=Chebyshev(start,goal);
+    	openList.add(start);
+    	while(!openList.isEmpty()){
+    		
+    	}
     	// return an empty path
         return new Stack<MapLocation>();
     }
     
-    private int Chebyshev(MapLocation start, MapLocation goal){
+    private static int Chebyshev(MapLocation start, MapLocation goal){
     	return Math.max(Math.abs(start.x-goal.x), Math.abs(start.y-goal.y));
     }
 
