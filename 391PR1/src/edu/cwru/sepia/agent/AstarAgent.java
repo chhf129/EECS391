@@ -16,11 +16,21 @@ public class AstarAgent extends Agent {
     class MapLocation
     {
         public int x, y;
-
+        public float cost,fValue,hValue;
+        public MapLocation cameFrom;
         public MapLocation(int x, int y, MapLocation cameFrom, float cost)
         {
             this.x = x;
             this.y = y;
+        }
+        public MapLocation(int x, int y, MapLocation cameFrom, float cost, float hValue)
+        {
+            this.x = x;
+            this.y = y;
+            this.cameFrom = cameFrom;
+            this.cost = cost;
+            this.hValue = hValue;
+            this.fValue = this.cost + this.hValue;
         }
     }
 
@@ -306,7 +316,7 @@ public class AstarAgent extends Agent {
     	 * 			
     	 * 			
     	 */
-
+        
     	// return an empty path
         return new Stack<MapLocation>();
     }
