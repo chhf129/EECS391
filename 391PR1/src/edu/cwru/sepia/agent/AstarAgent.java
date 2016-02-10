@@ -303,12 +303,16 @@ public class AstarAgent extends Agent {
     	 * 		while open list isn't empty
     	 * 			pop first element of open list
     	 * 			find neighbors within map extents and not in closed list
-    	 * 			compute
+    	 * 			
     	 * 			
     	 */
 
     	// return an empty path
         return new Stack<MapLocation>();
+    }
+    
+    private int Chebyshev(MapLocation start, MapLocation goal){
+    	return Math.max(Math.abs(start.x-goal.x), Math.abs(start.y-goal.y));
     }
 
     /**
