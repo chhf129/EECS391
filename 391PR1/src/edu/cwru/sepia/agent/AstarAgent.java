@@ -17,15 +17,14 @@ public class AstarAgent extends Agent {
     class MapLocation
     {
         public int x, y;
-        public float cost,fValue,hValue;
-        public MapLocation cameFrom;
-        public MapLocation(int x, int y, MapLocation cameFrom, float cost)
-        {
+        public float cost,fValue,hValue;//path cost, function cost, and heuristic cost for A* search
+        public MapLocation cameFrom;// for A* search, the node that precedes this one in a path
+        
+        public MapLocation(int x, int y, MapLocation cameFrom, float cost) {
             this.x = x;
             this.y = y;
         }
-        public MapLocation(int x, int y, MapLocation cameFrom, float cost, float hValue)
-        {
+        public MapLocation(int x, int y, MapLocation cameFrom, float cost, float hValue) {
             this.x = x;
             this.y = y;
             this.cameFrom = cameFrom;
@@ -33,8 +32,7 @@ public class AstarAgent extends Agent {
             this.hValue = hValue;
             this.fValue = this.cost + this.hValue;
         }
-        public MapLocation(int x, int y, float hValue)
-        {
+        public MapLocation(int x, int y, float hValue) {
             this.x = x;
             this.y = y;
             this.hValue = hValue;
@@ -312,56 +310,161 @@ public class AstarAgent extends Agent {
      */
     private Stack<MapLocation> AstarSearch(MapLocation start, MapLocation goal, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations)
     {
-    	/* A* outline:
-    	 * 		create StackMapLocations
-    	 * 		create open list- priority queue (Tuple(MapLocation, f(n)))
-    	 * 		create closed list- use ResourceLocs (can't move there and reomves an extra check)
-    	 * 		add initial loc to open list
-    	 * 		while open list isn't empty
-    	 * 			pop first element of open list
-    	 * 			find neighbors within map extents and not in closed list
-    	 * 			
-    	 * 			
-    	 */    	
-    	PriorityQueue<MapLocation> openList=new PriorityQueue<MapLocation>();
+    	//create MapLocation priority queue which prioritizes locations with smallest function value (path cost + heuristic)
+    	class locComp implements Comparator<MapLocation>{
+			@Override
+			public int compare(MapLocation loc1, MapLocation loc2) {
+				return -(Float.compare(loc1.fValue, loc2.fValue));
+			}
+    	}
+    	PriorityQueue<MapLocation> openList=new PriorityQueue<MapLocation>(new locComp());
     	LinkedList<MapLocation> closedList = new LinkedList<MapLocation>();
+    	//resource locations and the enemy footman can't be explored, and are equivalent to closed spots
     	closedList.addAll(resourceLocations);
-    	closedList.add(enemyFootmanLoc);
+    	if (enemyFootmanLoc != null){
+    		closedList.add(enemyFootmanLoc);
+    	}
+    	//initialize extra values for start
     	start.hValue=Chebyshev(start,goal);
     	start.cost=0;
     	openList.add(start);
+    	//will hold the path to return
+    	Stack<MapLocation> path = new Stack<MapLocation>();
+    	
+    	System.out.println("Reaching ("+goal.x+", "+goal.y+") from ("+start.x+", "+start.y+")");
+    	
+    	//while there are nodes to explore, pop next location and explore it
     	while(!openList.isEmpty()){
-    		MapLocation next = openList.poll();
-    		int x = next.x-1;
-    		int y = next.y;
-    		if (x>=0){
-    			boolean valid = true;
-    			for (MapLocation m:openList){
-    				if (x==m.x && y==m.y){
-    					valid = false;
-    					if (m.cost-1>next.cost){
-    						m.cost = next.cost+1;
-    						m.cameFrom = next;
-    					}
-    				}
-    			}
-    			for (MapLocation m: closedList){
-    				valid = valid && (x!=m.x && y!=m.y);
-    			}
-    			if (valid){
-    				MapLocation l = new MapLocation(x, y, next, next.cost+1, 0);
-    				l.hValue = Chebyshev(l, goal);
-    				l.fValue = l.cost+l.hValue;
-    				openList.add(l);
-    			}
-    			openList.remove(next);
-    			closedList.addFirst(next);
+        	MapLocation node = openList.poll();
+    		if (this.ExploreNode(node, openList, closedList, goal, xExtent, yExtent)){
+    			//ExploreNode returns true if it can reach the goal from the node it's exploring, so create the path and break out
+    			path = CreatePath(node, start, closedList);
+    			break;
     		}
     	}
-    	// return an empty path
-        return new Stack<MapLocation>();
+    	if (path.isEmpty()){
+    		System.out.println("No available path.");
+    		System.exit(0);
+    	}
+    	System.out.println("Found path:");
+    	for(MapLocation m: path){
+    		System.out.println("\t("+m.x+", "+m.y+")");
+    	}
+    	return path;
     }
     
+    /**
+     * This method takes a MapLocation and then checks its neighbors, making sure they are not out-of-bounds.
+     * It then moves the MapLocatoin from the open list to closed list.
+     *
+     * @param node Location that is being explored
+     * @param openList List of MapLocations to explore
+     * @param closedList List of unexplorable/already explored locations
+     * @param goal The town hall
+     * @param xExtent Width of the map
+     * @param yExtent Height of the map
+     * @return returns true if it can reach the goal, else false
+     */
+    private boolean ExploreNode(MapLocation node, PriorityQueue<MapLocation> openList, LinkedList<MapLocation> closedList, MapLocation goal, int xExtent, int yExtent){
+    	System.out.println("Exploring ("+node.x+", "+node.y+")");
+    	//cycle through all 8 neighbors
+    	for (int x = node.x-1; x < node.x+2; x++){
+    		for (int y = node.y-1; y < node.y+2; y++){
+    			//don't check locations that are out-of-bounds or the current node
+    			if (!(x<0 || x>=xExtent || y<0 || y>=yExtent || (x==node.x && y==node.y))){
+    				if (x == goal.x && y == goal.y){
+    					return true;
+    				} else {
+    					this.ExamineNeighbor(x, y, node, goal, openList, closedList);
+    				}
+    			}
+    		}
+    	}
+    	openList.remove(node);
+		closedList.addFirst(node);
+    	return false;
+    }
+    
+    /**
+     * Examines a neighboring map location. If it is already in the open list, it updates the parent of that location according to which
+     * previous location has the shortest path cost leading to it. If the location isn't in the open list or closed list, it initiates the
+     * A* values of the location (path cost, heuristic cost, function cost, parent) and adds it to the open list.
+     * 
+     * @param x
+     * @param y
+     * @param node
+     * @param goal
+     * @param openList
+     * @param closedList
+     */
+    private void ExamineNeighbor(int x, int y, MapLocation node, MapLocation goal, PriorityQueue<MapLocation> openList, LinkedList<MapLocation> closedList){
+		boolean valid = true;
+		//check in closed list
+		//System.out.println(closedList.size());
+		for (MapLocation m: closedList){
+			//System.out.println("closedList");
+			valid = valid && (x!=m.x || y!=m.y);
+		}
+		//System.out.println("done with closedList");
+		//check in open list
+		if (valid) {
+			//System.out.println("Checking open list");
+			for (MapLocation m : openList) {
+				if (x == m.x && y == m.y) {
+					valid = false;
+					if (m.cost - 1 > node.cost) {
+						m.cost = node.cost + 1;
+						m.cameFrom = node;
+					}
+				}
+			} 
+		}
+		//if not in open or closed lists, add location to the 
+		if (valid){
+			MapLocation l = new MapLocation(x, y, node, node.cost+1, 0);
+			l.hValue = Chebyshev(l, goal);
+			l.fValue = l.cost+l.hValue;
+			openList.add(l);
+		}
+    }
+    
+    /**
+     * Uses the closed list to create a path to the goal by tracing the path backwards from the goal by examining which
+     * location came before it, and then before that one, ... , until it reaches the starting location
+     * 
+     * @param end The last location in the path
+     * @param start The starting location
+     * @param closedList The closed list from A*
+     * @return a Stack containing the path to the goal (not including starting location or goal)
+     */
+    private static Stack<MapLocation> CreatePath(MapLocation end, MapLocation start, LinkedList<MapLocation> closedList){
+    	System.out.println("Creating path:");
+    	Stack<MapLocation> path = new Stack<MapLocation>();
+    	System.out.println("\t("+end.x+", "+end.y+")");
+    	path.push(end);
+    	MapLocation loc = end.cameFrom;
+    	//trace path back until we find the starting location
+    	while (loc.x != start.x || loc.y != start.y){
+    		for (MapLocation m: closedList){
+    			if (m.x == loc.x && m.y == loc.y){
+    				System.out.println("\t("+loc.x+", "+loc.y+")");
+    				path.push(loc);
+    				loc = m.cameFrom;
+    				System.out.println("\t("+end.x+", "+end.y+")");
+    				break;
+    			}
+    		}
+    	}
+    	return path;
+    }
+    
+    /**
+     * Computes the Chebyshev distance between two locations as the heuristic for A*
+     * 
+     * @param start Location to determine heuristic for
+     * @param goal Location of the goal
+     * @return the Chebyshev distance between the two locations
+     */
     private static int Chebyshev(MapLocation start, MapLocation goal){
     	return Math.max(Math.abs(start.x-goal.x), Math.abs(start.y-goal.y));
     }
