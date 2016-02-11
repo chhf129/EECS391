@@ -314,7 +314,7 @@ public class AstarAgent extends Agent {
     	class locComp implements Comparator<MapLocation>{
 			@Override
 			public int compare(MapLocation loc1, MapLocation loc2) {
-				return -(Float.compare(loc1.fValue, loc2.fValue));
+				return Float.compare(loc1.fValue, loc2.fValue);
 			}
     	}
     	PriorityQueue<MapLocation> openList=new PriorityQueue<MapLocation>(new locComp());
@@ -331,8 +331,6 @@ public class AstarAgent extends Agent {
     	//will hold the path to return
     	Stack<MapLocation> path = new Stack<MapLocation>();
     	
-    	System.out.println("Reaching ("+goal.x+", "+goal.y+") from ("+start.x+", "+start.y+")");
-    	
     	//while there are nodes to explore, pop next location and explore it
     	while(!openList.isEmpty()){
         	MapLocation node = openList.poll();
@@ -345,10 +343,6 @@ public class AstarAgent extends Agent {
     	if (path.isEmpty()){
     		System.out.println("No available path.");
     		System.exit(0);
-    	}
-    	System.out.println("Found path:");
-    	for(MapLocation m: path){
-    		System.out.println("\t("+m.x+", "+m.y+")");
     	}
     	return path;
     }
@@ -366,7 +360,6 @@ public class AstarAgent extends Agent {
      * @return returns true if it can reach the goal, else false
      */
     private boolean ExploreNode(MapLocation node, PriorityQueue<MapLocation> openList, LinkedList<MapLocation> closedList, MapLocation goal, int xExtent, int yExtent){
-    	System.out.println("Exploring ("+node.x+", "+node.y+")");
     	//cycle through all 8 neighbors
     	for (int x = node.x-1; x < node.x+2; x++){
     		for (int y = node.y-1; y < node.y+2; y++){
@@ -400,15 +393,11 @@ public class AstarAgent extends Agent {
     private void ExamineNeighbor(int x, int y, MapLocation node, MapLocation goal, PriorityQueue<MapLocation> openList, LinkedList<MapLocation> closedList){
 		boolean valid = true;
 		//check in closed list
-		//System.out.println(closedList.size());
 		for (MapLocation m: closedList){
-			//System.out.println("closedList");
 			valid = valid && (x!=m.x || y!=m.y);
 		}
-		//System.out.println("done with closedList");
 		//check in open list
 		if (valid) {
-			//System.out.println("Checking open list");
 			for (MapLocation m : openList) {
 				if (x == m.x && y == m.y) {
 					valid = false;
@@ -438,19 +427,15 @@ public class AstarAgent extends Agent {
      * @return a Stack containing the path to the goal (not including starting location or goal)
      */
     private static Stack<MapLocation> CreatePath(MapLocation end, MapLocation start, LinkedList<MapLocation> closedList){
-    	System.out.println("Creating path:");
     	Stack<MapLocation> path = new Stack<MapLocation>();
-    	System.out.println("\t("+end.x+", "+end.y+")");
     	path.push(end);
     	MapLocation loc = end.cameFrom;
     	//trace path back until we find the starting location
     	while (loc.x != start.x || loc.y != start.y){
     		for (MapLocation m: closedList){
     			if (m.x == loc.x && m.y == loc.y){
-    				System.out.println("\t("+loc.x+", "+loc.y+")");
     				path.push(loc);
     				loc = m.cameFrom;
-    				System.out.println("\t("+end.x+", "+end.y+")");
     				break;
     			}
     		}
