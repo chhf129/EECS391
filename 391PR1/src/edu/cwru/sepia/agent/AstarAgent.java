@@ -1,3 +1,5 @@
+//Haifeng Chen hxc334
+//Michael Volkovitsch mtv25
 package edu.cwru.sepia.agent;
 
 import edu.cwru.sepia.action.Action;
@@ -224,6 +226,8 @@ public class AstarAgent extends Agent {
      * @param currentPath
      * @return
      */
+    
+    //to check if enemy is moving, record enemy's position in previous frame
     private int enemyPreviousX = -1;
     private int enemyPreviousY = -1;
     private boolean enemyMoving = false;
