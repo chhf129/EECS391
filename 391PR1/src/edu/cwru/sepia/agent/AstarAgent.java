@@ -224,10 +224,46 @@ public class AstarAgent extends Agent {
      * @param currentPath
      * @return
      */
+    private int enemyPreviousX = -1;
+    private int enemyPreviousY = -1;
+    private boolean enemyMoving = false;
     private boolean shouldReplanPath(State.StateView state, History.HistoryView history, Stack<MapLocation> currentPath)
     {
+    	//to check if running on a dynamic map
+    	if(enemyFootmanID == -1)
+    	{
+    		return false;
+    	}
+        Unit.UnitView enemyFootman = state.getUnit(enemyFootmanID);
+        //to check if enemy footman blocked our way
+        for(MapLocation mapLocation : currentPath)
+        {
+        	if(mapLocation.x == enemyFootman.getXPosition() && mapLocation.y == enemyFootman.getYPosition())
+        	{
+        		return true;
+        	}
+        }
+        //to check if enemy footman is staying
+        if(enemyPreviousX == enemyFootman.getXPosition()&&enemyPreviousY == enemyFootman.getYPosition())
+        {
+        	//if yes, to check if enemy footman stopped for a long time, or just stopped
+        	if(enemyMoving)
+        	{
+        		//if enemy footman was just stopped, we replan the path
+        		enemyMoving = false;
+        		return true;
+        	}
+        }
+        else
+        {
+        	//if no, we know that the enemy is moving
+        	enemyMoving = true;
+            enemyPreviousX = enemyFootman.getXPosition();
+            enemyPreviousY = enemyFootman.getYPosition();
+        }
         return false;
     }
+
 
     /**
      * This method is implemented for you. You should look at it to see examples of
