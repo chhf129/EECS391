@@ -63,6 +63,8 @@ public class GameState {
     	footmenAttackRange=state.getUnits(0).get(0).getTemplateView().getRange();
     	archerAttackRange=state.getUnits(1).get(0).getTemplateView().getRange();
     }
+    
+    	
 
     /**
      * You will implement this function.
@@ -137,14 +139,57 @@ public class GameState {
      */
     public List<GameStateChild> getChildren() {
     	List<Action> unitOneAction,unitTwoAction=new LinkedList<Action>();
-    	List<GameStateChild> gameStateChildren=new LinkedList<GameStateChild>();;
+    	List<GameStateChild> gameStateChildren=new LinkedList<GameStateChild>();
+    	Map<Integer,Action> actionMap;
     	//collect all possible action
     	if (isFootmenTurn){
-    		for (GameUnit f: footmen){
-    			getAllAction(f);
+    		unitOneAction=getAllAction(footmen.get(0));
+    		if (footmen.size()==2){
+    			unitTwoAction=getAllAction(footmen.get(1));
     		}
     	}
-    	
+    	else {
+    		unitOneAction=getAllAction(archers.get(0));
+    		if (archers.size()==2){
+    			unitTwoAction=getAllAction(archers.get(1));
+    		}
+    	}
+    	//generate child state by all the possible actions
+    	if (unitTwoAction.isEmpty()){
+    		for (Action actionOne : unitOneAction) {
+    			for (Action actionTwo : unitTwoAction) {
+    				actionMap=new HashMap<Integer,Action>();
+					actionMap.put(0, actionOne);
+					actionMap.put(1, actionTwo);
+			    	if (actionOne.getType()==ActionType.PRIMITIVEMOVE && actionTwo.getType()==ActionType.PRIMITIVEMOVE){
+			    		if(!moveToSameLocation(actionOne,actionTwo)){
+			    			try{
+			    			GameState newState=(GameState)this.clone();
+			    			newState.simulateAction(actionMap);
+			    			gameStateChildren.add(new GameStateChild(new HashMap<Integer,Action>(actionMap),newState));
+			    			}
+			    			catch (Exception e){
+			    				System.out.println("gamestate clone fail");
+			    			}
+			    		}
+			    	}
+				}
+			}
+    	}
+    	else{
+    		for (Action actionOne : unitOneAction){
+				actionMap=new HashMap<Integer,Action>();
+				actionMap.put(0, actionOne);
+				try{
+					GameState newState=(GameState)this.clone();
+					newState.simulateAction(actionMap);
+					gameStateChildren.add(new GameStateChild(new HashMap<Integer,Action>(actionMap),newState));
+				}
+    			catch (Exception e){
+    				System.out.println("gamestate clone fail");
+    			}
+				}
+    	}
         return gameStateChildren;
     }
     
@@ -153,33 +198,118 @@ public class GameState {
      * helper method for getChildren(),get all possible moves for one unit
      */
     private List<Action> getAllAction(GameUnit unit){
-    	List<Action> action =new LinkedList<Action>();
- 
+    	List<Action> actionList =new LinkedList<Action>();
     	Direction[] possibleDirections={Direction.EAST,Direction.SOUTH,Direction.NORTH,Direction.WEST};
-		for (Direction direction: possibleDirections){
-			if (isValidDirection(unit,direction)){
-				action.add(Action.createPrimitiveMove(unit.getId(), direction));
-			}}
-		return null;
-    }
-    
-    /*
-     * helper method for getChildren(), check if unit can move into certain direction
-     */
-    private boolean isValidDirection(GameUnit unit,Direction direction) {
-    	int targetX=+direction.xComponent();
-    	int targetY=+direction.yComponent();
-    	//check boundary
-    	if (targetX<0 || targetY<0 || targetX>xExtent || targetY>yExtent){
-    		return false;
+    	for (Direction direction: possibleDirections){
+	    	int targetX=unit.getXPosition()+direction.xComponent();
+	    	int targetY=unit.getYPosition()+direction.yComponent();
+	    	//check boundary
+	    	if (targetX<0 || targetY<0 || targetX>xExtent || targetY>yExtent){
+	    		continue;
+	    	}
+	    	//if meet obstacles
+	    	for (ResourceView r:obstacles){
+	    		if (r.getXPosition()==targetX && r.getYPosition()==targetY){
+	    			continue;
+	    		}
+	    	}
+	    	//if meet other people
+	    	for (GameUnit u:footmen){
+	    		if (u.getId()!=unit.getId()){
+	    			if (targetX==u.getXPosition() && targetY==u.getYPosition()){
+	    				continue;
+	    			}
+	    		}
+	    	}
+	    	for (GameUnit u:archers){
+	    		if (u.getId()!=unit.getId()){
+	    			if (targetX==u.getXPosition() && targetY==u.getYPosition()){
+	    				continue;
+	    			}
+	    		}
+	    	}
+	    	if (isFootmen(unit)){
+	    		for (GameUnit enemy:archers){
+	    	    	if (  Math.abs(enemy.getXPosition()-targetX)<=footmenAttackRange &&
+	    	    			Math.abs(enemy.getYPosition()-targetX)<=footmenAttackRange){
+	    	    		actionList.add(Action.createCompoundAttack(unit.getId(), enemy.getId()));
+	    	    		continue;
+	    	    	}
+	    		}
+	    	}
+	    	actionList.add(Action.createPrimitiveMove(unit.getId(), direction));
     	}
-    	//if meet obstacles
-    	for (ResourceView r:obstacles){
-    		if (r.getXPosition()==targetX && r.getYPosition()==targetY){
-    			return false;
+    	
+    	if (!isFootmen(unit)){
+    		for (GameUnit enemy:footmen){
+    	    	if (  Math.abs(enemy.getXPosition()-unit.getXPosition())<=archerAttackRange &&
+    	    			Math.abs(enemy.getYPosition()-unit.getYPosition())<=archerAttackRange){
+    	    		actionList.add(Action.createCompoundAttack(unit.getId(), enemy.getId()));
+    	    	}
     		}
     	}
-    	//if meet other people
-    	return true;
+    	//check duplicate in actionList
+    	for (int i=0; i<actionList.size();i++){
+    		for (int j=1; j<actionList.size(); j++){
+    			if (actionList.get(i).deepEquals(actionList.get(j))){
+    				actionList.remove(i);
+    			}
+    		}
+    	}
+    	
+		return actionList;
+    }
+    
+    private boolean isFootmen(GameUnit unit){
+    	return unit.getId()==0 || unit.getId()==1;
+    }
+    
+    /**
+     * helper method of getChildren
+     * find if unit1, unit2 moves to same location in the next state, based on their actions
+  
+     */
+    private boolean moveToSameLocation(Action actionOne, Action actionTwo){
+    	int x1=((DirectedAction)actionOne).getDirection().xComponent();
+    	int x2=((DirectedAction)actionTwo).getDirection().xComponent();
+    	int y1=((DirectedAction)actionOne).getDirection().yComponent();
+    	int y2=((DirectedAction)actionTwo).getDirection().yComponent();
+    	GameUnit unit1,unit2;
+    	if (isFootmenTurn){
+    		unit1=footmen.get(0);
+    		unit2=footmen.get(1);
+    	}
+    	else{
+    		unit1=archers.get(0);
+    		unit2=archers.get(1);
+    	}
+    	return unit1.getXPosition()+x1 == unit2.getXPosition()+x2 && unit1.getYPosition()+y1 == unit2.getYPosition()+y2;
+    }
+    
+    public void simulateAction(Map<Integer,Action> actionMap){
+    	for (int i=0;i<actionMap.size();i++){
+    		if (actionMap.get(i).getType()==ActionType.PRIMITIVEMOVE){
+    			if (isFootmenTurn){
+    				footmen.get(i).xPosition+=((DirectedAction)actionMap.get(i)).getDirection().xComponent();
+    				footmen.get(i).yPosition+=((DirectedAction)actionMap.get(i)).getDirection().yComponent();
+    			}
+    			else{
+    				archers.get(i).xPosition+=((DirectedAction)actionMap.get(i)).getDirection().xComponent();
+    				archers.get(i).yPosition+=((DirectedAction)actionMap.get(i)).getDirection().yComponent();
+    			}
+    		}
+    		else if (actionMap.get(i).getType()==ActionType.COMPOUNDATTACK){
+    			if (isFootmenTurn){
+    				//
+    				//
+    			}
+    			else{
+    				//
+    				//
+    			}
+    		}
+    		
+    	}
+    	isFootmenTurn=!isFootmenTurn;
     }
 }
