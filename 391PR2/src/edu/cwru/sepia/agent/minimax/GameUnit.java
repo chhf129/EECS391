@@ -5,11 +5,13 @@ import edu.cwru.sepia.environment.model.state.Unit;
 public class GameUnit {
 	public int xPosition,yPosition;
 	public int hp;
+	public int maxHP;
 	public int id;
 	public GameUnit(Unit.UnitView unit){
 		xPosition=unit.getXPosition();
 		yPosition=unit.getYPosition();
 		hp=unit.getHP();
+		maxHP=unit.getTemplateView().getBaseHealth();
 		id=unit.getID();
 	}
 	public int getXPosition() {
