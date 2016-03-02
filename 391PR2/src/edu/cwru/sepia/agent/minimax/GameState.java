@@ -91,16 +91,32 @@ public class GameState {
     	}
     	double total = 0;
     	for (GameUnit f: footmen){
-    		double dist = xExtent+yExtent;//impossible distance
-    		//find the distance to the closest archer
-    		for (GameUnit a: archers){
-    			int xDif = Math.abs(f.getXPosition()-a.getXPosition());
-    			int yDif = Math.abs(f.getYPosition()-a.getYPosition());
-    			dist = Math.min(dist, Math.sqrt(xDif*xDif + yDif*yDif));//pythagorean theorem
-    		}
-    		total += dist;
+    		total += distanceUtility(f, archers);
+    		total += footmanHPUtility(f);
     	}
-        return Math.pow(total, -1);
+    	for (GameUnit a: archers){
+    		total += archerHPUtility(a);
+    	}
+        return total;
+    }
+    //range 0-1 based on the inverse of the distance between footman and the closest archer
+    public double distanceUtility(GameUnit footman, List<GameUnit> archers){
+    	double dist = Double.POSITIVE_INFINITY;
+		//find the distance to the closest archer
+		for (GameUnit a: archers){
+			int xDif = Math.abs(footman.getXPosition()-a.getXPosition());
+			int yDif = Math.abs(footman.getYPosition()-a.getYPosition());
+			dist = Math.min(dist, Math.sqrt(xDif*xDif + yDif*yDif));//pythagorean theorem
+		}
+		return Math.pow(dist, -1);
+    }
+    //range 0-1 based on the fraction of HP remaining for the footman
+    public double footmanHPUtility(GameUnit footman){
+    	return (double)footman.hp/footman.maxHP;
+    }
+    //range -1-0 based in the fraction of hp remaining for the archer
+    public double archerHPUtility(GameUnit archer){
+    	return (double)-archer.hp/archer.maxHP;
     }
 
     /**
