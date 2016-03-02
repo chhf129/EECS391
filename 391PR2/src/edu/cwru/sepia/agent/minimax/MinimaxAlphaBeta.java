@@ -8,6 +8,7 @@ import edu.cwru.sepia.util.Direction;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -78,11 +79,35 @@ public class MinimaxAlphaBeta extends Agent {
      */
     public GameStateChild alphaBetaSearch(GameStateChild node, int depth, double alpha, double beta)
     {
-    	Map<Integer, Action> action=new HashMap<Integer,Action>();
-    	action.put(2, Action.createPrimitiveMove(0, Direction.EAST));
-    	action.put(1, Action.createPrimitiveMove(0, Direction.SOUTH));
-        GameStateChild temp=new GameStateChild(action,null);
-        return temp;
+    	return alphaBetaSearch(node, depth, alpha, beta, true);
+    }
+    
+    public GameStateChild alphaBetaSearch(GameStateChild node, int depth, double alpha, double beta, boolean isMax)
+    {
+    	if (depth == 0){
+    		return node;
+    	}
+    	List<GameStateChild> children = orderChildrenWithHeuristics(node.state.getChildren(), isMax);
+    	ArrayList<Double> weights = new ArrayList<Double>();
+    	for (GameStateChild c: children){
+    		GameStateChild d = alphaBetaSearch(c, depth-1, alpha, beta, !isMax);
+    		double utility = d.state.getUtility();
+    		weights.add(utility);
+    		if (isMax){
+    			if (utility > beta){
+    				return d;
+    			} else {
+    				alpha = Math.max(alpha, utility);
+    			}
+    		} else {
+    			if (utility < alpha){
+    				return d;
+    			} else {
+    				beta = Math.min(beta, utility);
+    			}
+    		}
+    	}
+    	return children.get(weights.indexOf(Collections.max(weights)));
     }
 
     /**
