@@ -108,6 +108,7 @@ public class MinimaxAlphaBeta extends Agent {
     		}
     	}
     	return children.get(weights.indexOf(Collections.max(weights)));
+
     }
 
     /**
