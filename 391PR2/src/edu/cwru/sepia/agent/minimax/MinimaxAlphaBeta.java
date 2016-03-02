@@ -80,7 +80,8 @@ public class MinimaxAlphaBeta extends Agent {
     public GameStateChild alphaBetaSearch(GameStateChild node, int depth, double alpha, double beta)
     {
     	//start at a MAX node
-    	return alphaBetaSearch(node, depth, alpha, beta, true);
+    	GameStateChild c = alphaBetaSearch(node, 10, alpha, beta, true);
+    	return c;
     }
     
     public GameStateChild alphaBetaSearch(GameStateChild node, int depth, double alpha, double beta, boolean isMax)
@@ -89,6 +90,7 @@ public class MinimaxAlphaBeta extends Agent {
     		return node;
     	}
     	List<GameStateChild> children = orderChildrenWithHeuristics(node.state.getChildren(), isMax);
+    	System.out.println("*DEBUG* ABsearch: plys left- " + depth + "\tchildren found: " + children.size());
     	ArrayList<Double> weights = new ArrayList<Double>();
     	for (GameStateChild c: children){
     		GameStateChild d = alphaBetaSearch(c, depth-1, alpha, beta, !isMax);
@@ -141,6 +143,12 @@ public class MinimaxAlphaBeta extends Agent {
     		}
     	};
     	Collections.sort(children, sorter);
+    	for (GameStateChild c: children){
+    		System.out.println("CHILD actions:");
+    		for (Action a: c.action.values()){
+    			System.out.println("\t"+a.toString());
+    		}
+    	}
         return children;
     }
 }
