@@ -42,19 +42,18 @@ public class GameState {
      *
      * @param state Current state of the episode
      */
-	
-	List<Unit.UnitView>footmen,archers;
+	List<Unit.UnitView>footmen,archers;//contain the footmen units
 	static int archerRange;
-	int xExtent,yExtent;
+	int xExtent,yExtent;//size of the map
 	List<ResourceView> obstacles=new LinkedList<ResourceView>();
+	
     public GameState(State.StateView state) {
-    	footmen=state.getUnits(0);
-    	archers=state.getUnits(1);
+    	footmen=state.getUnits(0);//player's units are footmen
+    	archers=state.getUnits(1);//enemy units are archers
     	xExtent=state.getXExtent();
     	yExtent=state.getYExtent();
     	obstacles.addAll(state.getAllResourceNodes());
     	archerRange=archers.get(0).getTemplateView().getRange();
-    	
     }
 
     /**
@@ -76,7 +75,18 @@ public class GameState {
      * @return The weighted linear combination of the features
      */
     public double getUtility() {
-        return 0.0;
+    	double total = 0;
+    	for (Unit.UnitView f: footmen){
+    		double dist = xExtent+yExtent;//impossible distance
+    		//find the distance to the closest archer
+    		for (Unit.UnitView a: archers){
+    			int xDif = Math.abs(f.getXPosition()-a.getXPosition());
+    			int yDif = Math.abs(f.getYPosition()-a.getYPosition());
+    			dist = Math.min(dist, Math.sqrt(xDif*xDif + yDif*yDif));//pythagorean theorem
+    		}
+    		total += dist;
+    	}
+        return Math.pow(total, -1);
     }
 
     /**
