@@ -46,7 +46,7 @@ public class GameState {
 	List<GameUnit>archers=new LinkedList<GameUnit>();//contain the footmen units
 	static int archerAttackRange,footmenAttackRange;
 	static int xExtent,yExtent;//size of the map
-	List<ResourceView> obstacles=new LinkedList<ResourceView>();
+	static List<ResourceView> obstacles=new LinkedList<ResourceView>();
 	boolean isFootmenTurn=false;
 	State.StateView stateView; //for testing purpose
     public GameState(State.StateView state) {
@@ -62,6 +62,11 @@ public class GameState {
     	obstacles.addAll(state.getAllResourceNodes());
     	footmenAttackRange=state.getUnits(0).get(0).getTemplateView().getRange();
     	archerAttackRange=state.getUnits(1).get(0).getTemplateView().getRange();
+    }
+    public GameState(GameState gameState){
+    	footmen=new LinkedList<GameUnit>(gameState.footmen);
+    	archers=new LinkedList<GameUnit>(gameState.archers);
+    	isFootmenTurn=gameState.isFootmenTurn;
     }
     
     	
@@ -163,14 +168,9 @@ public class GameState {
 					actionMap.put(1, actionTwo);
 			    	if (actionOne.getType()==ActionType.PRIMITIVEMOVE && actionTwo.getType()==ActionType.PRIMITIVEMOVE){
 			    		if(!moveToSameLocation(actionOne,actionTwo)){
-			    			try{
-			    			GameState newState=(GameState)this.clone();
+			    			GameState newState=new GameState(this);
 			    			newState.simulateAction(actionMap);
 			    			gameStateChildren.add(new GameStateChild(new HashMap<Integer,Action>(actionMap),newState));
-			    			}
-			    			catch (Exception e){
-			    				System.out.println("gamestate clone fail");
-			    			}
 			    		}
 			    	}
 				}
@@ -180,14 +180,9 @@ public class GameState {
     		for (Action actionOne : unitOneAction){
 				actionMap=new HashMap<Integer,Action>();
 				actionMap.put(0, actionOne);
-				try{
-					GameState newState=(GameState)this.clone();
+					GameState newState=new GameState(this);
 					newState.simulateAction(actionMap);
 					gameStateChildren.add(new GameStateChild(new HashMap<Integer,Action>(actionMap),newState));
-				}
-    			catch (Exception e){
-    				System.out.println("gamestate clone fail");
-    			}
 				}
     	}
         return gameStateChildren;
