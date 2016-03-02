@@ -75,6 +75,12 @@ public class GameState {
      * @return The weighted linear combination of the features
      */
     public double getUtility() {
+    	if (archers.isEmpty()){
+    		return Double.POSITIVE_INFINITY;
+    	}
+    	if (footmen.isEmpty()){
+    		return Double.NEGATIVE_INFINITY;
+    	}
     	double total = 0;
     	for (Unit.UnitView f: footmen){
     		double dist = xExtent+yExtent;//impossible distance
