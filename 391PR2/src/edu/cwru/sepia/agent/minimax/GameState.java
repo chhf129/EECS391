@@ -47,7 +47,7 @@ public class GameState {
 	static int archerAttackRange,footmenAttackRange;
 	static int xExtent,yExtent;//size of the map
 	static List<ResourceView> obstacles=new LinkedList<ResourceView>();
-	boolean isFootmenTurn=false;
+	boolean isFootmenTurn=true;
 	State.StateView stateView; //for testing purpose
     public GameState(State.StateView state) {
     	stateView=state;
@@ -160,7 +160,7 @@ public class GameState {
     		}
     	}
     	//generate child state by all the possible actions
-    	if (unitTwoAction.isEmpty()){
+    	if (!unitTwoAction.isEmpty()){
     		for (Action actionOne : unitOneAction) {
     			for (Action actionTwo : unitTwoAction) {
     				actionMap=new HashMap<Integer,Action>();
