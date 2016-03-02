@@ -4,6 +4,7 @@ import edu.cwru.sepia.action.Action;
 import edu.cwru.sepia.action.ActionType;
 import edu.cwru.sepia.action.DirectedAction;
 import edu.cwru.sepia.action.TargetedAction;
+import edu.cwru.sepia.environment.model.state.ResourceNode.ResourceView;
 import edu.cwru.sepia.environment.model.state.State;
 import edu.cwru.sepia.environment.model.state.Unit;
 import edu.cwru.sepia.util.Direction;
@@ -19,7 +20,7 @@ import java.util.*;
  * but do not delete or change the signatures of the provided methods.
  */
 public class GameState {
-
+	
     /**
      * You will implement this constructor. It will
      * extract all of the needed state information from the built in
@@ -41,7 +42,19 @@ public class GameState {
      *
      * @param state Current state of the episode
      */
+	
+	List<Unit.UnitView>footmen,archers;
+	static int archerRange;
+	int xExtent,yExtent;
+	List<ResourceView> obstacles=new LinkedList<ResourceView>();
     public GameState(State.StateView state) {
+    	footmen=state.getUnits(0);
+    	archers=state.getUnits(1);
+    	xExtent=state.getXExtent();
+    	yExtent=state.getYExtent();
+    	obstacles.addAll(state.getAllResourceNodes());
+    	archerRange=archers.get(0).getTemplateView().getRange();
+    	
     }
 
     /**

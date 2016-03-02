@@ -4,9 +4,11 @@ import edu.cwru.sepia.action.Action;
 import edu.cwru.sepia.agent.Agent;
 import edu.cwru.sepia.environment.model.history.History;
 import edu.cwru.sepia.environment.model.state.State;
+import edu.cwru.sepia.util.Direction;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -74,7 +76,11 @@ public class MinimaxAlphaBeta extends Agent {
      */
     public GameStateChild alphaBetaSearch(GameStateChild node, int depth, double alpha, double beta)
     {
-        return node;
+    	Map<Integer, Action> action=new HashMap<Integer,Action>();
+    	action.put(2, Action.createPrimitiveMove(0, Direction.EAST));
+    	action.put(1, Action.createPrimitiveMove(0, Direction.SOUTH));
+        GameStateChild temp=new GameStateChild(action,null);
+        return temp;
     }
 
     /**
