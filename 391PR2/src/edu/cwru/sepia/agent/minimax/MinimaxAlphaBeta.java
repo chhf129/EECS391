@@ -79,9 +79,28 @@ public class MinimaxAlphaBeta extends Agent {
      */
     public GameStateChild alphaBetaSearch(GameStateChild node, int depth, double alpha, double beta)
     {
+    	/*
+    	List<GameStateChild> test=node.state.getChildren();
+    	System.out.println("possible action size"+test.size());
+    	for (GameStateChild c: test){
+    		System.out.println("CHILD actions:");
+    		for (Action a: c.action.values()){
+    			System.out.println("\t"+a.toString());
+    		}
+    	}
+    	return test.get(0);
+    	*/
+    	/*
+    	Map<Integer, Action> tempAction=new HashMap<Integer, Action> ();
+    	tempAction.put(1, Action.createPrimitiveMove(1, Direction.WEST));
+    	GameStateChild temp=new GameStateChild(tempAction,null);
+    	return temp;
+    	*/
     	//start at a MAX node
+
     	GameStateChild c = alphaBetaSearch(node, depth, alpha, beta, true);
     	return c;
+    	
     }
     
     public GameStateChild alphaBetaSearch(GameStateChild node, int depth, double alpha, double beta, boolean isMax)

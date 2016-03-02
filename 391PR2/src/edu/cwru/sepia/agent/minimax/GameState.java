@@ -150,6 +150,7 @@ public class GameState {
     	//collect all possible action
     	if (isFootmenTurn){
     		unitOneAction=getAllAction(footmen.get(0));
+    		//System.out.println("test: unit1 action size"+unitOneAction.size());
     		if (footmen.size()==2){
     			unitTwoAction=getAllAction(footmen.get(1));
     		}
@@ -165,7 +166,7 @@ public class GameState {
     		for (Action actionOne : unitOneAction) {
     			for (Action actionTwo : unitTwoAction) {
     				actionMap=new HashMap<Integer,Action>();
-					actionMap.put(0, actionOne);
+					actionMap.put(0, actionOne);  //0 and 1 are footmen's id, because archers' action are never executed by speia. SO put 0 and 1 as unit id for archers' turn should be fine.
 					actionMap.put(1, actionTwo);
 			    	if (actionOne.getType()==ActionType.PRIMITIVEMOVE && actionTwo.getType()==ActionType.PRIMITIVEMOVE){
 			    		if(!moveToSameLocation(actionOne,actionTwo)){
@@ -180,7 +181,7 @@ public class GameState {
     	else{
     		for (Action actionOne : unitOneAction){
 				actionMap=new HashMap<Integer,Action>();
-				actionMap.put(0, actionOne);
+				actionMap.put(footmen.get(0).getId(), actionOne);
 					GameState newState=new GameState(this);
 					newState.simulateAction(actionMap);
 					gameStateChildren.add(new GameStateChild(new HashMap<Integer,Action>(actionMap),newState));
@@ -195,34 +196,34 @@ public class GameState {
      */
     private List<Action> getAllAction(GameUnit unit){
     	List<Action> actionList =new LinkedList<Action>();
-    	boolean flag;
     	Direction[] possibleDirections={Direction.EAST,Direction.SOUTH,Direction.NORTH,Direction.WEST};
+    	outerloop:
     	for (Direction direction: possibleDirections){
-    		flag=true;
+    	//	System.out.println("test:getall action current unit id:"+unit.getId()+"direction"+direction);
 	    	int targetX=unit.getXPosition()+direction.xComponent();
 	    	int targetY=unit.getYPosition()+direction.yComponent();
 	    	//check boundary
 	    	if (targetX<0 || targetY<0 || targetX>xExtent || targetY>yExtent){
-	    		flag=false;
+	    		continue outerloop;
 	    	}
 	    	//if meet obstacles
 	    	for (ResourceView r:obstacles){
 	    		if (r.getXPosition()==targetX && r.getYPosition()==targetY){
-	    			flag=false;
+	    			continue outerloop;
 	    		}
 	    	}
 	    	//if meet other people
 	    	for (GameUnit u:footmen){
 	    		if (u.getId()!=unit.getId()){
 	    			if (targetX==u.getXPosition() && targetY==u.getYPosition()){
-	    				flag=false;
+	    				continue outerloop;
 	    			}
 	    		}
 	    	}
 	    	for (GameUnit u:archers){
 	    		if (u.getId()!=unit.getId()){
 	    			if (targetX==u.getXPosition() && targetY==u.getYPosition()){
-	    				flag=false;
+	    				continue outerloop;
 	    			}
 	    		}
 	    	}
@@ -231,13 +232,11 @@ public class GameState {
 	    	    	if (  Math.abs(enemy.getXPosition()-targetX)<=footmenAttackRange &&
 	    	    			Math.abs(enemy.getYPosition()-targetX)<=footmenAttackRange){
 	    	    		actionList.add(Action.createCompoundAttack(unit.getId(), enemy.getId()));
-	    	    		flag=false;
+	    	    		continue outerloop;
 	    	    	}
 	    		}
 	    	}
-	    	if (flag){
-	    		actionList.add(Action.createPrimitiveMove(unit.getId(), direction));
-	    	}
+	    	actionList.add(Action.createPrimitiveMove(unit.getId(), direction));
     	}
     	
     	if (!isFootmen(unit)){
@@ -250,7 +249,7 @@ public class GameState {
     	}
     	//check duplicate in actionList
     	for (int i=0; i<actionList.size();i++){
-    		for (int j=1; j<actionList.size(); j++){
+    		for (int j=i+1; j<actionList.size(); j++){
     			if (actionList.get(i).deepEquals(actionList.get(j))){
     				actionList.remove(i);
     			}
@@ -287,29 +286,33 @@ public class GameState {
     }
     
     public void simulateAction(Map<Integer,Action> actionMap){
-    	for (int i=0;i<actionMap.size();i++){
-    		if (actionMap.get(i).getType()==ActionType.PRIMITIVEMOVE){
-    			if (isFootmenTurn){
-    				footmen.get(i).xPosition+=((DirectedAction)actionMap.get(i)).getDirection().xComponent();
-    				footmen.get(i).yPosition+=((DirectedAction)actionMap.get(i)).getDirection().yComponent();
-    			}
-    			else{
-    				archers.get(i).xPosition+=((DirectedAction)actionMap.get(i)).getDirection().xComponent();
-    				archers.get(i).yPosition+=((DirectedAction)actionMap.get(i)).getDirection().yComponent();
-    			}
+    	for (int key : actionMap.keySet()){
+    		if (actionMap.get(key).getType()==ActionType.PRIMITIVEMOVE){
+    			getGameUnitByID(key).xPosition+=((DirectedAction)actionMap.get(key)).getDirection().xComponent();
+    			getGameUnitByID(key).yPosition+=((DirectedAction)actionMap.get(key)).getDirection().yComponent();
     		}
-    		else if (actionMap.get(i).getType()==ActionType.COMPOUNDATTACK){
-    			if (isFootmenTurn){
-    				//
-    				//
-    			}
-    			else{
-    				//
-    				//
-    			}
+    		else if (actionMap.get(key).getType()==ActionType.COMPOUNDATTACK){
+    			//TODO
     		}
-    		
     	}
     	isFootmenTurn=!isFootmenTurn;
+    }
+    
+    public GameUnit getGameUnitByID(int id){
+    	if (id==0 || id==1){
+    		for (GameUnit u: footmen){
+    			if (u.getId()==id){
+    				return u;
+    			}
+    		}
+    	}
+    	else{
+    		for (GameUnit u: archers){
+    			if (u.getId()==id){
+    				return u;
+    			}
+    		}
+    	}
+    	return null;
     }
 }
