@@ -8,6 +8,8 @@ import edu.cwru.sepia.util.Direction;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,8 +98,19 @@ public class MinimaxAlphaBeta extends Agent {
      * @param children
      * @return The list of children sorted by your heuristic.
      */
-    public List<GameStateChild> orderChildrenWithHeuristics(List<GameStateChild> children)
+    //places most interesting child at front of the list
+    public List<GameStateChild> orderChildrenWithHeuristics(List<GameStateChild> children, boolean isMax)
     {
+    	Comparator<GameStateChild> sorter = new Comparator<GameStateChild>() {
+    		public int compare(GameStateChild c1, GameStateChild c2){
+    			int i = Double.compare(c1.state.getUtility(), c2.state.getUtility());
+    			if (isMax){
+    				i *= -1;
+    			}
+    			return i;
+    		}
+    	};
+    	Collections.sort(children, sorter);
         return children;
     }
 }
