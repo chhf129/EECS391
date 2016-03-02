@@ -194,32 +194,34 @@ public class GameState {
      */
     private List<Action> getAllAction(GameUnit unit){
     	List<Action> actionList =new LinkedList<Action>();
+    	boolean flag;
     	Direction[] possibleDirections={Direction.EAST,Direction.SOUTH,Direction.NORTH,Direction.WEST};
     	for (Direction direction: possibleDirections){
+    		flag=true;
 	    	int targetX=unit.getXPosition()+direction.xComponent();
 	    	int targetY=unit.getYPosition()+direction.yComponent();
 	    	//check boundary
 	    	if (targetX<0 || targetY<0 || targetX>xExtent || targetY>yExtent){
-	    		continue;
+	    		flag=false;
 	    	}
 	    	//if meet obstacles
 	    	for (ResourceView r:obstacles){
 	    		if (r.getXPosition()==targetX && r.getYPosition()==targetY){
-	    			continue;
+	    			flag=false;
 	    		}
 	    	}
 	    	//if meet other people
 	    	for (GameUnit u:footmen){
 	    		if (u.getId()!=unit.getId()){
 	    			if (targetX==u.getXPosition() && targetY==u.getYPosition()){
-	    				continue;
+	    				flag=false;
 	    			}
 	    		}
 	    	}
 	    	for (GameUnit u:archers){
 	    		if (u.getId()!=unit.getId()){
 	    			if (targetX==u.getXPosition() && targetY==u.getYPosition()){
-	    				continue;
+	    				flag=false;
 	    			}
 	    		}
 	    	}
@@ -228,11 +230,13 @@ public class GameState {
 	    	    	if (  Math.abs(enemy.getXPosition()-targetX)<=footmenAttackRange &&
 	    	    			Math.abs(enemy.getYPosition()-targetX)<=footmenAttackRange){
 	    	    		actionList.add(Action.createCompoundAttack(unit.getId(), enemy.getId()));
-	    	    		continue;
+	    	    		flag=false;
 	    	    	}
 	    		}
 	    	}
-	    	actionList.add(Action.createPrimitiveMove(unit.getId(), direction));
+	    	if (flag){
+	    		actionList.add(Action.createPrimitiveMove(unit.getId(), direction));
+	    	}
     	}
     	
     	if (!isFootmen(unit)){
