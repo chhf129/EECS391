@@ -1,6 +1,7 @@
 
 #gitignore for eclipse
 .metadata
+.metadata/
 bin/
 tmp/
 *.tmp
