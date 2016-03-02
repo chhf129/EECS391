@@ -79,12 +79,13 @@ public class MinimaxAlphaBeta extends Agent {
      */
     public GameStateChild alphaBetaSearch(GameStateChild node, int depth, double alpha, double beta)
     {
+    	//start at a MAX node
     	return alphaBetaSearch(node, depth, alpha, beta, true);
     }
     
     public GameStateChild alphaBetaSearch(GameStateChild node, int depth, double alpha, double beta, boolean isMax)
     {
-    	if (depth == 0){
+    	if (depth <= 0){
     		return node;
     	}
     	List<GameStateChild> children = orderChildrenWithHeuristics(node.state.getChildren(), isMax);
@@ -107,8 +108,11 @@ public class MinimaxAlphaBeta extends Agent {
     			}
     		}
     	}
-    	return children.get(weights.indexOf(Collections.max(weights)));
-
+    	if (isMax){
+    		return children.get(weights.indexOf(Collections.max(weights)));
+    	} else {
+    		return children.get(weights.indexOf(Collections.min(weights)));
+    	}
     }
 
     /**
@@ -124,7 +128,7 @@ public class MinimaxAlphaBeta extends Agent {
      * @param children
      * @return The list of children sorted by your heuristic.
      */
-    //places most interesting child at front of the list
+    //places most useful child at front of the list (max utility for max nodes, min utility for min nodes)
     public List<GameStateChild> orderChildrenWithHeuristics(List<GameStateChild> children, boolean isMax)
     {
     	Comparator<GameStateChild> sorter = new Comparator<GameStateChild>() {
