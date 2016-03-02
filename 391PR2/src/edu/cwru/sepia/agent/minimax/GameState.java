@@ -46,7 +46,7 @@ public class GameState {
 	List<GameUnit>archers=new LinkedList<GameUnit>();//contain the footmen units
 	static int archerAttackRange,footmenAttackRange;
 	static int xExtent,yExtent;//size of the map
-	static List<ResourceView> obstacles=new LinkedList<ResourceView>();
+	List<ResourceView> obstacles=new LinkedList<ResourceView>();
 	boolean isFootmenTurn=true;
 	State.StateView stateView; //for testing purpose
     public GameState(State.StateView state) {
@@ -66,6 +66,7 @@ public class GameState {
     public GameState(GameState gameState){
     	footmen=new LinkedList<GameUnit>(gameState.footmen);
     	archers=new LinkedList<GameUnit>(gameState.archers);
+    	obstacles=new LinkedList<ResourceView>(gameState.obstacles);
     	isFootmenTurn=gameState.isFootmenTurn;
     }
     
