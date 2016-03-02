@@ -82,6 +82,14 @@ public class MinimaxAlphaBeta extends Agent {
     	action.put(2, Action.createPrimitiveMove(0, Direction.EAST));
     	action.put(1, Action.createPrimitiveMove(0, Direction.SOUTH));
         GameStateChild temp=new GameStateChild(action,null);
+        /*
+        for (int i:node.state.stateView.getUnitIds(0)){
+        	System.out.println(i);
+        }
+        for (int i:node.state.stateView.getUnitIds(1)){
+        	System.out.println(i);
+        }
+        */
         return temp;
     }
 

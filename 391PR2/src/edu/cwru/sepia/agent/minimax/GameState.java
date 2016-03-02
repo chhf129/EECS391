@@ -42,18 +42,26 @@ public class GameState {
      *
      * @param state Current state of the episode
      */
-	List<Unit.UnitView>footmen,archers;//contain the footmen units
-	static int archerRange;
-	int xExtent,yExtent;//size of the map
+	List<GameUnit>footmen=new LinkedList<GameUnit>();//contain the footmen units
+	List<GameUnit>archers=new LinkedList<GameUnit>();//contain the footmen units
+	static int archerAttackRange,footmenAttackRange;
+	static int xExtent,yExtent;//size of the map
 	List<ResourceView> obstacles=new LinkedList<ResourceView>();
-	
+	boolean isFootmenTurn=false;
+	State.StateView stateView; //for testing purpose
     public GameState(State.StateView state) {
-    	footmen=state.getUnits(0);//player's units are footmen
-    	archers=state.getUnits(1);//enemy units are archers
+    	stateView=state;
+    	for (int i=0; i<state.getUnits(0).size();i++){//player's units are footmen
+    		footmen.add(new GameUnit(state.getUnits(0).get(i)));
+    	}
+    	for (int i=0; i<state.getUnits(1).size();i++){//enemy units are archers
+    		archers.add(new GameUnit(state.getUnits(1).get(i)));
+    	}
     	xExtent=state.getXExtent();
     	yExtent=state.getYExtent();
     	obstacles.addAll(state.getAllResourceNodes());
-    	archerRange=archers.get(0).getTemplateView().getRange();
+    	footmenAttackRange=state.getUnits(0).get(0).getTemplateView().getRange();
+    	archerAttackRange=state.getUnits(1).get(0).getTemplateView().getRange();
     }
 
     /**
@@ -82,10 +90,10 @@ public class GameState {
     		return Double.NEGATIVE_INFINITY;
     	}
     	double total = 0;
-    	for (Unit.UnitView f: footmen){
+    	for (GameUnit f: footmen){
     		double dist = xExtent+yExtent;//impossible distance
     		//find the distance to the closest archer
-    		for (Unit.UnitView a: archers){
+    		for (GameUnit a: archers){
     			int xDif = Math.abs(f.getXPosition()-a.getXPosition());
     			int yDif = Math.abs(f.getYPosition()-a.getYPosition());
     			dist = Math.min(dist, Math.sqrt(xDif*xDif + yDif*yDif));//pythagorean theorem
@@ -101,7 +109,7 @@ public class GameState {
      * This will return a list of GameStateChild objects. You will generate all of the possible
      * actions in a step and then determine the resulting game state from that action. These are your GameStateChildren.
      *
-     * You may find it useful to iterate over all the different directions in SEPIA.
+     * You may find it useful to iterate over all the different directions in SEPIA.	
      *
      * for(Direction direction : Directions.values())
      *
@@ -112,6 +120,50 @@ public class GameState {
      * @return All possible actions and their associated resulting game state
      */
     public List<GameStateChild> getChildren() {
-        return null;
+    	List<Action> unitOneAction,unitTwoAction=new LinkedList<Action>();
+    	List<GameStateChild> gameStateChildren=new LinkedList<GameStateChild>();;
+    	//collect all possible action
+    	if (isFootmenTurn){
+    		for (GameUnit f: footmen){
+    			getAllAction(f);
+    		}
+    	}
+    	
+        return gameStateChildren;
+    }
+    
+    
+    /*
+     * helper method for getChildren(),get all possible moves for one unit
+     */
+    private List<Action> getAllAction(GameUnit unit){
+    	List<Action> action =new LinkedList<Action>();
+ 
+    	Direction[] possibleDirections={Direction.EAST,Direction.SOUTH,Direction.NORTH,Direction.WEST};
+		for (Direction direction: possibleDirections){
+			if (isValidDirection(unit,direction)){
+				action.add(Action.createPrimitiveMove(unit.getId(), direction));
+			}}
+		return null;
+    }
+    
+    /*
+     * helper method for getChildren(), check if unit can move into certain direction
+     */
+    private boolean isValidDirection(GameUnit unit,Direction direction) {
+    	int targetX=+direction.xComponent();
+    	int targetY=+direction.yComponent();
+    	//check boundary
+    	if (targetX<0 || targetY<0 || targetX>xExtent || targetY>yExtent){
+    		return false;
+    	}
+    	//if meet obstacles
+    	for (ResourceView r:obstacles){
+    		if (r.getXPosition()==targetX && r.getYPosition()==targetY){
+    			return false;
+    		}
+    	}
+    	//if meet other people
+    	return true;
     }
 }
