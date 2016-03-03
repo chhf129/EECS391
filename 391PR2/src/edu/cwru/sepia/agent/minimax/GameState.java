@@ -175,12 +175,13 @@ public class GameState {
 					actionMap.put(0, actionOne);  //0 and 1 are footmen's id, because archers' action are never executed by speia. SO put 0 and 1 as unit id for archers' turn should be fine.
 					actionMap.put(1, actionTwo);
 			    	if (actionOne.getType()==ActionType.PRIMITIVEMOVE && actionTwo.getType()==ActionType.PRIMITIVEMOVE){
-			    		if(!moveToSameLocation(actionOne,actionTwo)){
-			    			GameState newState=new GameState(this);
-			    			newState.simulateAction(actionMap);
-			    			gameStateChildren.add(new GameStateChild(new HashMap<Integer,Action>(actionMap),newState));
+			    		if(moveToSameLocation(actionOne,actionTwo)){
+			    			continue;
 			    		}
 			    	}
+	    			GameState newState=new GameState(this);
+	    			newState.simulateAction(actionMap);
+	    			gameStateChildren.add(new GameStateChild(new HashMap<Integer,Action>(actionMap),newState));
 				}
 			}
     	}
@@ -231,12 +232,13 @@ public class GameState {
 	    			if (targetX==u.getXPosition() && targetY==u.getYPosition()){
 	    				continue outerloop;
 	    			}
+	    			
 	    		}
 	    	}
 	    	if (isFootmen(unit)){
 	    		for (GameUnit enemy:archers){
 	    	    	if (  Math.abs(enemy.getXPosition()-targetX)<=footmenAttackRange &&
-	    	    			Math.abs(enemy.getYPosition()-targetX)<=footmenAttackRange){
+	    	    			Math.abs(enemy.getYPosition()-targetY)<=footmenAttackRange){
 	    	    		actionList.add(Action.createCompoundAttack(unit.getId(), enemy.getId()));
 	    	    		continue outerloop;
 	    	    	}
@@ -288,7 +290,9 @@ public class GameState {
     		unit1=archers.get(0);
     		unit2=archers.get(1);
     	}
-    	return unit1.getXPosition()+x1 == unit2.getXPosition()+x2 && unit1.getYPosition()+y1 == unit2.getYPosition()+y2;
+    	boolean result=unit1.getXPosition()+x1 == unit2.getXPosition()+x2 && unit1.getYPosition()+y1 == unit2.getYPosition()+y2;
+    	
+    	return result;
     }
     
     public void simulateAction(Map<Integer,Action> actionMap){
