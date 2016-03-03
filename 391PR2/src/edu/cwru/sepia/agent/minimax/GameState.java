@@ -4,6 +4,7 @@ import edu.cwru.sepia.action.Action;
 import edu.cwru.sepia.action.ActionType;
 import edu.cwru.sepia.action.DirectedAction;
 import edu.cwru.sepia.action.TargetedAction;
+import edu.cwru.sepia.agent.minimax.AstarAgent.MapLocation;
 import edu.cwru.sepia.environment.model.state.ResourceNode.ResourceView;
 import edu.cwru.sepia.environment.model.state.State;
 import edu.cwru.sepia.environment.model.state.Unit;
@@ -105,7 +106,8 @@ public class GameState {
     	}
     	double total = 0;
     	for (GameUnit f: footmen){
-    		total += distanceUtility(f, archers);
+    		//total += distanceUtility(f, archers);
+    		total += aStarUtility(f, archers);
     		//total += footmanHPUtility(f);
     	}
     	for (GameUnit a: archers){
@@ -131,6 +133,21 @@ public class GameState {
     //range -1-0 based in the fraction of hp remaining for the archer
     public double archerHPUtility(GameUnit archer){
     	return (double)-archer.hp/archer.maxHP;
+    }
+    public double aStarUtility(GameUnit footman, List<GameUnit> archers){
+    	AstarAgent aStar = new AstarAgent(0);
+    	AstarAgent.MapLocation f = aStar.new MapLocation(footman.getXPosition(), footman.getYPosition(), 0);
+    	Set<AstarAgent.MapLocation> obstructions = new HashSet<AstarAgent.MapLocation>();
+    	for (ResourceView r: obstacles){
+    		AstarAgent.MapLocation m = aStar.new MapLocation(r.getXPosition(), r.getYPosition(), 0);
+    		obstructions.add(m);
+    	}
+    	double util = Double.POSITIVE_INFINITY;
+    	for (GameUnit a: archers){
+    		AstarAgent.MapLocation ar = aStar.new MapLocation(a.getXPosition(), a.getYPosition(), 0);
+    		util = Math.min(util, aStar.AstarSearch(f, ar, xExtent, yExtent, f, obstructions).size());
+    	}
+    	return Math.pow(util, -1);
     }
 
     /**
