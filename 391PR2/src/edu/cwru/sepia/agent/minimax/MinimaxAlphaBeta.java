@@ -108,8 +108,8 @@ public class MinimaxAlphaBeta extends Agent {
     	if (depth <= 0){
     		return node;
     	}
+    	System.out.println("*DEBUG* ABsearch: plys left- " + depth);
     	List<GameStateChild> children = orderChildrenWithHeuristics(node.state.getChildren(), isMax);
-    	System.out.println("*DEBUG* ABsearch: plys left- " + depth + "\tchildren found: " + children.size());
     	ArrayList<Double> weights = new ArrayList<Double>();
     	for (GameStateChild c: children){
     		GameStateChild d = alphaBetaSearch(c, depth-1, alpha, beta, !isMax);
@@ -162,12 +162,24 @@ public class MinimaxAlphaBeta extends Agent {
     		}
     	};
     	Collections.sort(children, sorter);
+    	//DEBUG PRINTING*******************************
     	for (GameStateChild c: children){
-    		System.out.println("CHILD actions:");
+    		System.out.println("Child Summary:");
+    		System.out.println("\tutility: " + c.state.getUtility());
     		for (Action a: c.action.values()){
     			System.out.println("\t"+a.toString());
     		}
+    		System.out.print("\tfootman at: ");
+    		for (GameUnit g: c.state.footmen){
+    			System.out.print("(" + g.getXPosition() + ", " + g.getYPosition() + ")  ");
+    		}
+    		System.out.print("\n\tarchers at:" );
+    		for (GameUnit g: c.state.archers){
+    			System.out.print("(" + g.getXPosition() + ", " + g.getYPosition() + ")  ");
+    		}
+    		System.out.println("");
     	}
+    	//***********************************************
         return children;
     }
 }

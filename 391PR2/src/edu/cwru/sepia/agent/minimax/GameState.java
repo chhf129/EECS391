@@ -100,10 +100,10 @@ public class GameState {
     	double total = 0;
     	for (GameUnit f: footmen){
     		total += distanceUtility(f, archers);
-    		total += footmanHPUtility(f);
+    		//total += footmanHPUtility(f);
     	}
     	for (GameUnit a: archers){
-    		total += archerHPUtility(a);
+    		//total += archerHPUtility(a);
     	}
         return total;
     }
@@ -184,7 +184,7 @@ public class GameState {
 				actionMap.put(footmen.get(0).getId(), actionOne);
 					GameState newState=new GameState(this);
 					newState.simulateAction(actionMap);
-					gameStateChildren.add(new GameStateChild(new HashMap<Integer,Action>(actionMap),newState));
+					gameStateChildren.add(new GameStateChild(new HashMap<Integer,Action>(actionMap), new GameState(newState)));
 				}
     	}
         return gameStateChildren;
