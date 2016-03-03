@@ -14,6 +14,13 @@ public class GameUnit {
 		maxHP=unit.getTemplateView().getBaseHealth();
 		id=unit.getID();
 	}
+	public GameUnit(GameUnit unit){
+		xPosition=unit.getXPosition();
+		yPosition=unit.getYPosition();
+		hp=unit.getHp();
+		maxHP=unit.maxHP;
+		id=unit.getId();
+	}
 	public int getXPosition() {
 		return xPosition;
 	}

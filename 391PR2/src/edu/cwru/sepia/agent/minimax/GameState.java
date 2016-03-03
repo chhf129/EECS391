@@ -64,8 +64,14 @@ public class GameState {
     	archerAttackRange=state.getUnits(1).get(0).getTemplateView().getRange();
     }
     public GameState(GameState gameState){
-    	footmen=new LinkedList<GameUnit>(gameState.footmen);
-    	archers=new LinkedList<GameUnit>(gameState.archers);
+    	footmen=new LinkedList<GameUnit>();
+    	for (int i=0;i<gameState.footmen.size(); i++){
+    		footmen.add(new GameUnit(gameState.footmen.get(i)));
+    	}
+    	archers=new LinkedList<GameUnit>();
+    	for (int i=0;i<gameState.archers.size(); i++){
+    		archers.add(new GameUnit(gameState.archers.get(i)));
+    	}
     	obstacles=new LinkedList<ResourceView>(gameState.obstacles);
     	isFootmenTurn=gameState.isFootmenTurn;
     }
