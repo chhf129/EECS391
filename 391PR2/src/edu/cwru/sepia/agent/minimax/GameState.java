@@ -156,7 +156,6 @@ public class GameState {
     	//collect all possible action
     	if (isFootmenTurn){
     		unitOneAction=getAllAction(footmen.get(0));
-    		//System.out.println("test: unit1 action size"+unitOneAction.size());
     		if (footmen.size()==2){
     			unitTwoAction=getAllAction(footmen.get(1));
     		}
@@ -167,13 +166,14 @@ public class GameState {
     			unitTwoAction=getAllAction(archers.get(1));
     		}
     	}
-    	//generate child state by all the possible actions
+    	//generate child state by combine the possible actions from two units
     	if (!unitTwoAction.isEmpty()){
     		for (Action actionOne : unitOneAction) {
     			for (Action actionTwo : unitTwoAction) {
     				actionMap=new HashMap<Integer,Action>();
-					actionMap.put(0, actionOne);  //0 and 1 are footmen's id, because archers' action are never executed by speia. SO put 0 and 1 as unit id for archers' turn should be fine.
+					actionMap.put(0, actionOne);  //0 and 1 are footmen's id, because archers' action are never executed by speia. So put 0 and 1 as unit id for archers' turn should be fine.
 					actionMap.put(1, actionTwo);
+					//check if two units moving to same location
 			    	if (actionOne.getType()==ActionType.PRIMITIVEMOVE && actionTwo.getType()==ActionType.PRIMITIVEMOVE){
 			    		if(moveToSameLocation(actionOne,actionTwo)){
 			    			continue;
@@ -185,6 +185,7 @@ public class GameState {
 				}
 			}
     	}
+    	//only one unit left
     	else{
     		for (Action actionOne : unitOneAction){
 				actionMap=new HashMap<Integer,Action>();
@@ -198,15 +199,17 @@ public class GameState {
     }
     
     
-    /*
+    /**
      * helper method for getChildren(),get all possible moves for one unit
+     * @param unit current iterated GameUnit
+     * @return list of all possible actions
      */
     private List<Action> getAllAction(GameUnit unit){
     	List<Action> actionList =new LinkedList<Action>();
     	Direction[] possibleDirections={Direction.EAST,Direction.SOUTH,Direction.NORTH,Direction.WEST};
     	outerloop:
+        //iterate all four directions
     	for (Direction direction: possibleDirections){
-    	//	System.out.println("test:getall action current unit id:"+unit.getId()+"direction"+direction);
 	    	int targetX=unit.getXPosition()+direction.xComponent();
 	    	int targetY=unit.getYPosition()+direction.yComponent();
 	    	//check boundary
@@ -235,6 +238,7 @@ public class GameState {
 	    			
 	    		}
 	    	}
+	    	//for footmen, see if archer in attackrange and add attack action
 	    	if (isFootmen(unit)){
 	    		for (GameUnit enemy:archers){
 	    	    	if (  Math.abs(enemy.getXPosition()-targetX)<=footmenAttackRange &&
@@ -246,7 +250,7 @@ public class GameState {
 	    	}
 	    	actionList.add(Action.createPrimitiveMove(unit.getId(), direction));
     	}
-    	
+    	//for archer, see if footmen in attackrange and add attack action
     	if (!isFootmen(unit)){
     		for (GameUnit enemy:footmen){
     	    	if (  Math.abs(enemy.getXPosition()-unit.getXPosition())<=archerAttackRange &&
@@ -255,7 +259,7 @@ public class GameState {
     	    	}
     		}
     	}
-    	//check duplicate in actionList
+    	//check duplicate compound attack action in actionList
     	for (int i=0; i<actionList.size();i++){
     		for (int j=i+1; j<actionList.size(); j++){
     			if (actionList.get(i).deepEquals(actionList.get(j))){
@@ -273,8 +277,10 @@ public class GameState {
     
     /**
      * helper method of getChildren
-     * find if unit1, unit2 moves to same location in the next state, based on their actions
-  
+     * find if unit1, unit2 moves to same location in the next state, based on their actions, only called when both action is PRIMITIVEMOE
+     * @param actionOne action for unit one
+     * @param actionTwo action for unit two
+     * @return true if two action cause two units move to same location
      */
     private boolean moveToSameLocation(Action actionOne, Action actionTwo){
     	int x1=((DirectedAction)actionOne).getDirection().xComponent();
@@ -295,14 +301,45 @@ public class GameState {
     	return result;
     }
     
+    /**
+     * helper method of getChildren(), generate new state in generated GameStateChild based on action. 
+     * This method is called state in children GameStateChild
+     * @param actionMap action in GameStateChild 
+     */
     public void simulateAction(Map<Integer,Action> actionMap){
     	for (int key : actionMap.keySet()){
+    		//move unit by direction
     		if (actionMap.get(key).getType()==ActionType.PRIMITIVEMOVE){
     			getGameUnitByID(key).xPosition+=((DirectedAction)actionMap.get(key)).getDirection().xComponent();
     			getGameUnitByID(key).yPosition+=((DirectedAction)actionMap.get(key)).getDirection().yComponent();
     		}
+    		//if action is attack, decrease enemy hp and try to move unit
     		else if (actionMap.get(key).getType()==ActionType.COMPOUNDATTACK){
-    			//TODO
+    			GameUnit enemy=getGameUnitByID(((TargetedAction)actionMap.get(key)).getTargetId());
+    			GameUnit unit=getGameUnitByID(((TargetedAction)actionMap.get(key)).getUnitId());
+    			enemy.setHp(enemy.hp-enemy.maxHP/5);
+    			if (enemy.getHp()<=0){
+    				enemy.setHp(0);
+    			}
+    			//guess which move COMPOUNDATTACK does
+    			if (enemy.xPosition==unit.xPosition){
+    				if (enemy.yPosition-unit.yPosition==2){//unit is 2 tile above target, move south one tile and attack
+    					unit.yPosition+=1;
+    				}
+    				else if (enemy.yPosition-unit.yPosition==-2){//unit is 2 tile below target, move north one tile and attack
+    					unit.yPosition+=-1;
+    				}
+    				// else unit is already in attack position no need to move
+    			}
+    			else if (enemy.yPosition==unit.yPosition){
+    				if (enemy.xPosition-unit.xPosition==2){//unit is 2 tile left target, move east one tile and attack
+    					unit.xPosition+=1;
+    				}
+    				else if (enemy.xPosition-unit.xPosition==-2){//unit is 2 tile right target, move west one tile and attack
+    					unit.xPosition+=-1;
+    				}
+    				// else unit is already in attack position no need to move
+    			}
     		}
     	}
     	isFootmenTurn=!isFootmenTurn;
