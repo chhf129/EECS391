@@ -401,7 +401,7 @@ public class AstarAgent extends Agent {
     	for (int x = node.x-1; x < node.x+2; x++){
     		for (int y = node.y-1; y < node.y+2; y++){
     			//don't check locations that are out-of-bounds or the current node
-    			if (!(x<0 || x>=xExtent || y<0 || y>=yExtent || (x==node.x && y==node.y))){
+    			if ((Math.abs(node.x-x+node.y-y) == 1) && !(x<0 || x>=xExtent || y<0 || y>=yExtent || (x==node.x && y==node.y))){
     				if (x == goal.x && y == goal.y){
     					return true;
     				} else {
@@ -466,18 +466,20 @@ public class AstarAgent extends Agent {
     private static Stack<MapLocation> CreatePath(MapLocation end, MapLocation start, LinkedList<MapLocation> closedList){
     	Stack<MapLocation> path = new Stack<MapLocation>();
     	path.push(end);
-    	MapLocation loc = end.cameFrom;
-    	//trace path back until we find the starting location
-    	while (loc.x != start.x || loc.y != start.y){
-    		for (MapLocation m: closedList){
-    			if (m.x == loc.x && m.y == loc.y){
-    				path.push(loc);
-    				loc = m.cameFrom;
-    				break;
-    			}
-    		}
-    	}
-    	return path;
+    	if (end.cameFrom != null) {
+			MapLocation loc = end.cameFrom;
+			//trace path back until we find the starting location
+			while (loc.x != start.x || loc.y != start.y) {
+				for (MapLocation m : closedList) {
+					if (m.x == loc.x && m.y == loc.y) {
+						path.push(loc);
+						loc = m.cameFrom;
+						break;
+					}
+				}
+			} 
+		}
+		return path;
     }
     
     /**

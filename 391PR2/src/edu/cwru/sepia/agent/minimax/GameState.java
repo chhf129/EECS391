@@ -107,11 +107,11 @@ public class GameState {
     	double total = 0;
     	for (GameUnit f: footmen){
     		//total += distanceUtility(f, archers);
-    		total += aStarUtility(f, archers);
+    		total += 5*aStarUtility(f, archers);
     		//total += footmanHPUtility(f);
     	}
     	for (GameUnit a: archers){
-    		//total += archerHPUtility(a);
+    		total += 100*archerHPUtility(a);
     	}
         return total;
     }
@@ -147,6 +147,7 @@ public class GameState {
     		AstarAgent.MapLocation ar = aStar.new MapLocation(a.getXPosition(), a.getYPosition(), 0);
     		util = Math.min(util, aStar.AstarSearch(f, ar, xExtent, yExtent, f, obstructions).size());
     	}
+    	System.out.println("footman " + footman.id + " path = " + util);
     	return Math.pow(util, -1);
     }
 
