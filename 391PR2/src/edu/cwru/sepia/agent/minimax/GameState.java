@@ -50,6 +50,9 @@ public class GameState {
 	List<ResourceView> obstacles=new LinkedList<ResourceView>();
 	boolean isFootmenTurn=true;
 	State.StateView stateView; //for testing purpose
+	Stack<AstarAgent.MapLocation> astarPath0=new Stack<AstarAgent.MapLocation>();
+	Stack<AstarAgent.MapLocation> astarPath1=new Stack<AstarAgent.MapLocation>();
+	int astarDepth=0,astarDepthMAX=10;
     public GameState(State.StateView state) {
     	stateView=state;
     	for (int i=0; i<state.getUnits(0).size();i++){//player's units are footmen
@@ -75,6 +78,33 @@ public class GameState {
     	}
     	obstacles=new LinkedList<ResourceView>(gameState.obstacles);
     	isFootmenTurn=gameState.isFootmenTurn;
+    	astarDepth=gameState.astarDepth;
+    	astarDepthMAX=gameState.astarDepthMAX;
+    	astarPath0.addAll(gameState.astarPath0);
+    	for (AstarAgent.MapLocation m:astarPath0){
+    		m=new AstarAgent.MapLocation(m);//break reference
+    	}
+    	astarPath1.addAll(gameState.astarPath1);
+    	for (AstarAgent.MapLocation m:astarPath1){
+    		m=new AstarAgent.MapLocation(m);//break reference
+    	}
+    	/*
+    	Stack<AstarAgent.MapLocation> tempStack=new Stack<AstarAgent.MapLocation>();
+    	Stack<AstarAgent.MapLocation> tempStack2=new Stack<AstarAgent.MapLocation>();
+    	while (!gameState.astarPath0.isEmpty()){
+    		tempStack.push(new AstarAgent.MapLocation(gameState.astarPath0.pop()));
+    	}
+    	while (!tempStack.isEmpty()){
+    		astarPath0.push(new AstarAgent.MapLocation(tempStack.pop()));
+    	}
+    	tempStack.clear();
+    	while (!gameState.astarPath1.isEmpty()){
+    		tempStack.push(new AstarAgent.MapLocation(gameState.astarPath1.pop()));
+    	}
+    	while (!tempStack.isEmpty()){
+    		astarPath1.push(new AstarAgent.MapLocation(tempStack.pop()));
+    	}
+    	*/
     }
     
     	
@@ -135,20 +165,21 @@ public class GameState {
     	return (double)-archer.hp/archer.maxHP;
     }
     public double aStarUtility(GameUnit footman, List<GameUnit> archers){
-    	AstarAgent aStar = new AstarAgent(0);
-    	AstarAgent.MapLocation f = aStar.new MapLocation(footman.getXPosition(), footman.getYPosition(), 0);
-    	Set<AstarAgent.MapLocation> obstructions = new HashSet<AstarAgent.MapLocation>();
-    	for (ResourceView r: obstacles){
-    		AstarAgent.MapLocation m = aStar.new MapLocation(r.getXPosition(), r.getYPosition(), 0);
-    		obstructions.add(m);
+
+    	  //  	System.out.println("pop"+astarPath.peek().x+","+astarPath.peek().y);
+    	Stack<AstarAgent.MapLocation> currentPath=astarPath0;
+    	if (footman.getId()==1){
+    		currentPath=astarPath1;
     	}
-    	double util = Double.POSITIVE_INFINITY;
-    	for (GameUnit a: archers){
-    		AstarAgent.MapLocation ar = aStar.new MapLocation(a.getXPosition(), a.getYPosition(), 0);
-    		util = Math.min(util, aStar.AstarSearch(f, ar, xExtent, yExtent, f, obstructions).size());
+    	for (AstarAgent.MapLocation m:currentPath){
+    		//System.out.println("Path utility"+m.x+","+m.y+","+m.utility);
+    		if (footman.xPosition==m.x && footman.yPosition==m.y){
+    			//System.out.println("Path utility"+m.x+","+m.y+","+m.utility);
+    			return m.utility;
+    		}
     	}
-    	System.out.println("footman " + footman.id + " path = " + util);
-    	return Math.pow(util, -1);
+    //	System.out.println("footman " + footman.id + " path = " + util);
+    	return 0;
     }
 
     /**
@@ -325,6 +356,45 @@ public class GameState {
      * @param actionMap action in GameStateChild 
      */
     public void simulateAction(Map<Integer,Action> actionMap){
+    	astarDepth--;
+    	// compute astar path for child node
+    	if (astarDepth<=0){
+    		astarDepth=astarDepthMAX;
+        	for (GameUnit footman:footmen){
+        		AstarAgent aStar = new AstarAgent(0);
+        		AstarAgent.MapLocation f = new AstarAgent.MapLocation(footman.getXPosition(), footman.getYPosition(), 0);
+        		Set<AstarAgent.MapLocation> obstructions = new HashSet<AstarAgent.MapLocation>();
+        		for (ResourceView r: obstacles){
+        			AstarAgent.MapLocation m = new AstarAgent.MapLocation(r.getXPosition(), r.getYPosition(), 0);
+        			obstructions.add(m);
+        		}
+        		Stack<AstarAgent.MapLocation> tempPath;
+        		AstarAgent.MapLocation ar = new AstarAgent.MapLocation(archers.get(0).getXPosition(), archers.get(0).getYPosition(), 0);
+	    		tempPath=aStar.AstarSearch(f, ar, xExtent, yExtent, f, obstructions);
+	    		if (archers.size()==2){
+	    			ar = new AstarAgent.MapLocation(archers.get(1).getXPosition(), archers.get(1).getYPosition(), 0);
+	    			Stack<AstarAgent.MapLocation> tempPath2;
+	    			tempPath2=aStar.AstarSearch(f, ar, xExtent, yExtent, f, obstructions);
+	    			System.out.println("compute astarmap for footmen"+footman.xPosition+","+footman.yPosition);
+	    			if (tempPath.size()>tempPath2.size()){
+	    				tempPath.clear();
+	    				tempPath.addAll(tempPath2);
+	    			}
+	    		}
+	        	Stack<AstarAgent.MapLocation> currentPath=astarPath0;
+	        	if (footman.getId()==1){
+	        		currentPath=astarPath1;
+	        	}
+	        	currentPath.clear();
+	        	currentPath.addAll(tempPath);
+	    		int utility=currentPath.size();
+	    		for (AstarAgent.MapLocation m:currentPath){
+	    			m.utility=utility;
+	    			utility--;
+	    		}
+	    	}
+    	}	
+    	
     	for (int key : actionMap.keySet()){
     		//move unit by direction
     		if (actionMap.get(key).getType()==ActionType.PRIMITIVEMOVE){

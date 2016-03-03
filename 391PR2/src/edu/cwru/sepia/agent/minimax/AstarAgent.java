@@ -16,9 +16,10 @@ import java.util.*;
 
 public class AstarAgent extends Agent {
 
-    class MapLocation
+    static class MapLocation
     {
         public int x, y;
+        public int utility=0;
         public float cost,fValue,hValue;//path cost, function cost, and heuristic cost for A* search
         public MapLocation cameFrom;// for A* search, the node that precedes this one in a path
         
@@ -33,6 +34,15 @@ public class AstarAgent extends Agent {
             this.cost = cost;
             this.hValue = hValue;
             this.fValue = this.cost + this.hValue;
+        }
+        public MapLocation(MapLocation map) {
+            this.x = map.x;
+            this.y = map.y;
+            this.cameFrom = map.cameFrom;
+            this.cost = map.cost;
+            this.hValue = map.hValue;
+            this.fValue = map.fValue;
+            this.utility=map.utility;
         }
         public MapLocation(int x, int y, float hValue) {
             this.x = x;

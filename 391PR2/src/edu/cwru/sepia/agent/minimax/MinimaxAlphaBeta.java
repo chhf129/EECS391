@@ -98,7 +98,7 @@ public class MinimaxAlphaBeta extends Agent {
     	*/
     	//start at a MAX node
 
-    	GameStateChild c = alphaBetaSearch(node, 1, alpha, beta, true);
+    	GameStateChild c = alphaBetaSearch(node, depth, alpha, beta, true);
     	return c;
     	
     }
@@ -163,6 +163,7 @@ public class MinimaxAlphaBeta extends Agent {
     	};
     	Collections.sort(children, sorter);
     	//DEBUG PRINTING*******************************
+    	/*
     	for (GameStateChild c: children){
     		System.out.println("Child Summary:");
     		System.out.println("\tutility: " + c.state.getUtility());
@@ -179,6 +180,7 @@ public class MinimaxAlphaBeta extends Agent {
     		}
     		System.out.println("");
     	}
+    	*/
     	//***********************************************
         return children;
     }
