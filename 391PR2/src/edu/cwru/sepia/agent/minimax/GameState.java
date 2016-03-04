@@ -135,10 +135,19 @@ public class GameState {
     		return Double.NEGATIVE_INFINITY;
     	}
     	double total = 0;
-    	for (GameUnit f: footmen){
-    		//total += distanceUtility(f, archers);
-    		total += 5*aStarUtility(f, archers);
-    		//total += footmanHPUtility(f);
+    	if (obstacles.isEmpty()){
+    		for (GameUnit f: footmen){
+    			total += 1000*distanceUtility(f, archers);
+    			//total += 5*aStarUtility(f, archers);
+    			//total += footmanHPUtility(f);
+    		}
+    	}
+    	else{
+    		for (GameUnit f: footmen){
+    			//total += distanceUtility(f, archers);
+    			total += 5*aStarUtility(f, archers);
+    			//total += footmanHPUtility(f);
+    		}
     	}
     	for (GameUnit a: archers){
     		total += 100*archerHPUtility(a);
