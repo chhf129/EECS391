@@ -90,23 +90,6 @@ public class GameState {
     	for (AstarAgent.MapLocation m:astarPath1){
     		m=new AstarAgent.MapLocation(m);//break reference
     	}
-    	/*
-    	Stack<AstarAgent.MapLocation> tempStack=new Stack<AstarAgent.MapLocation>();
-    	Stack<AstarAgent.MapLocation> tempStack2=new Stack<AstarAgent.MapLocation>();
-    	while (!gameState.astarPath0.isEmpty()){
-    		tempStack.push(new AstarAgent.MapLocation(gameState.astarPath0.pop()));
-    	}
-    	while (!tempStack.isEmpty()){
-    		astarPath0.push(new AstarAgent.MapLocation(tempStack.pop()));
-    	}
-    	tempStack.clear();
-    	while (!gameState.astarPath1.isEmpty()){
-    		tempStack.push(new AstarAgent.MapLocation(gameState.astarPath1.pop()));
-    	}
-    	while (!tempStack.isEmpty()){
-    		astarPath1.push(new AstarAgent.MapLocation(tempStack.pop()));
-    	}
-    	*/
     }
     
     	
@@ -175,19 +158,15 @@ public class GameState {
     }
     //If the unit is on the precomputed A* path, increase utility  
     public double aStarUtility(GameUnit footman, List<GameUnit> archers){
-    	  //  	System.out.println("pop"+astarPath.peek().x+","+astarPath.peek().y);
     	Stack<AstarAgent.MapLocation> currentPath=astarPath0;
     	if (footman.getId()==1){
     		currentPath=astarPath1;
     	}
     	for (AstarAgent.MapLocation m:currentPath){
-    		//System.out.println("Path utility"+m.x+","+m.y+","+m.utility);
     		if (footman.xPosition==m.x && footman.yPosition==m.y){
-    			//System.out.println("Path utility"+m.x+","+m.y+","+m.utility);
     			return m.utility;
     		}
     	}
-    //	System.out.println("footman " + footman.id + " path = " + util);
     	return 0;
     }
 
@@ -206,6 +185,11 @@ public class GameState {
      * y += direction.yComponent()
      *
      * @return All possible actions and their associated resulting game state
+     */
+    /*
+     * 1.iterate through every footman or archer based on current turn, and generate all possible actions by calling gatAllACtion(GameUnit).
+     * 2.generate all possible combinations of two units' actions, put each combination in a new GameStateChild.
+     * 3.call simulateAction() in every gameStateChild, which update certain GameState variables based on action map in every child. 
      */
     public List<GameStateChild> getChildren() {
     	List<Action> unitOneAction,unitTwoAction=new LinkedList<Action>();
@@ -259,6 +243,8 @@ public class GameState {
     
     /**
      * helper method for getChildren(),get all possible moves for one unit
+     * 1. check if one direction is accessible, then add primitive move of that direction
+     * 2.check if attack move is available, for footman it will replace primitive move by compound attack
      * @param unit current iterated GameUnit
      * @return list of all possible actions
      */
@@ -362,15 +348,17 @@ public class GameState {
     
     /**
      * helper method of getChildren(), generate new state in generated GameStateChild based on action. 
-     * This method is called state in children GameStateChild
+     * This method is called by GameState in children GameStateChild
      * @param actionMap action in GameStateChild 
      */
     public void simulateAction(Map<Integer,Action> actionMap){
     	astarDepth--;
-    	// compute astar path for child node
+    	// compute/update astar path for child node when depth goes to 0
+    	// not the best place to do this, but whatever
     	if (astarDepth<=0){
     		astarDepth=astarDepthMAX;
         	for (GameUnit footman:footmen){
+        		// prepare parameter for astarsearch function
         		AstarAgent aStar = new AstarAgent(0);
         		AstarAgent.MapLocation f = new AstarAgent.MapLocation(footman.getXPosition(), footman.getYPosition(), 0);
         		Set<AstarAgent.MapLocation> obstructions = new HashSet<AstarAgent.MapLocation>();
@@ -381,16 +369,17 @@ public class GameState {
         		Stack<AstarAgent.MapLocation> tempPath;
         		AstarAgent.MapLocation ar = new AstarAgent.MapLocation(archers.get(0).getXPosition(), archers.get(0).getYPosition(), 0);
 	    		tempPath=aStar.AstarSearch(f, ar, xExtent, yExtent, f, obstructions);
+	    		//decide which archer should current footman going towards.
 	    		if (archers.size()==2){
 	    			ar = new AstarAgent.MapLocation(archers.get(1).getXPosition(), archers.get(1).getYPosition(), 0);
 	    			Stack<AstarAgent.MapLocation> tempPath2;
 	    			tempPath2=aStar.AstarSearch(f, ar, xExtent, yExtent, f, obstructions);
-	    			//System.out.println("compute astarmap for footmen"+footman.xPosition+","+footman.yPosition);
 	    			if (tempPath.size()>tempPath2.size()){
 	    				tempPath.clear();
 	    				tempPath.addAll(tempPath2);
 	    			}
 	    		}
+	    		//update path to global variable astartPath0/1
 	        	Stack<AstarAgent.MapLocation> currentPath=astarPath0;
 	        	if (footman.getId()==1){
 	        		currentPath=astarPath1;
@@ -398,6 +387,7 @@ public class GameState {
 	        	currentPath.clear();
 	        	currentPath.addAll(tempPath);
 	    		int utility=currentPath.size();
+	    		// assign utility to every step at path, the one closer to goal has higher utility to the one further
 	    		for (AstarAgent.MapLocation m:currentPath){
 	    			m.utility=utility;
 	    			utility--;
@@ -405,6 +395,7 @@ public class GameState {
 	    	}
     	}	
     	
+    	// actually start to simulate action based on actionmap
     	for (int key : actionMap.keySet()){
     		//move unit by direction
     		if (actionMap.get(key).getType()==ActionType.PRIMITIVEMOVE){

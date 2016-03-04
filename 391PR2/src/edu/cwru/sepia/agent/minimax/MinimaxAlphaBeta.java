@@ -93,7 +93,6 @@ public class MinimaxAlphaBeta extends Agent {
      */
     public GameStateChild alphaBetaSearch(GameStateChild node, int depth, double alpha, double beta, boolean isMax)
     {
-    	//System.out.println("*DEBUG* ABsearch: plys left- " + depth);
     	List<GameStateChild> children = orderChildrenWithHeuristics(node.state.getChildren(), isMax);
     	if (depth <= 1){
     		return children.get(0);
