@@ -53,6 +53,7 @@ public class GameState {
 	Stack<AstarAgent.MapLocation> astarPath0=new Stack<AstarAgent.MapLocation>();
 	Stack<AstarAgent.MapLocation> astarPath1=new Stack<AstarAgent.MapLocation>();
 	int astarDepth=0,astarDepthMAX=10;
+	
     public GameState(State.StateView state) {
     	stateView=state;
     	for (int i=0; i<state.getUnits(0).size();i++){//player's units are footmen
@@ -69,6 +70,7 @@ public class GameState {
     }
     public GameState(GameState gameState){
     	footmen=new LinkedList<GameUnit>();
+    	//clone units and copy obstacles
     	for (int i=0;i<gameState.footmen.size(); i++){
     		footmen.add(new GameUnit(gameState.footmen.get(i)));
     	}
@@ -127,6 +129,12 @@ public class GameState {
      *
      * @return The weighted linear combination of the features
      */
+    /*
+     * If the game has been won or lost, returns an max or min value.
+     * Otherwise, returns a heuristic utility using hp information and
+     * distance estimation. In a map without obstacles, a simple pythagorean
+     * distance is used, with obstacles A* search is used
+     */
     public double getUtility() {
     	if (archers.isEmpty()){
     		return Double.POSITIVE_INFINITY;
@@ -138,15 +146,11 @@ public class GameState {
     	if (obstacles.isEmpty()){
     		for (GameUnit f: footmen){
     			total += 1000*distanceUtility(f, archers);
-    			//total += 5*aStarUtility(f, archers);
-    			//total += footmanHPUtility(f);
     		}
     	}
     	else{
     		for (GameUnit f: footmen){
-    			//total += distanceUtility(f, archers);
     			total += 5*aStarUtility(f, archers);
-    			//total += footmanHPUtility(f);
     		}
     	}
     	for (GameUnit a: archers){
@@ -154,7 +158,7 @@ public class GameState {
     	}
         return total;
     }
-    //range 0-1 based on the inverse of the distance between footman and the closest archer
+    //Based on the inverse of the distance from a footman to the closest archer. Larger distance->lower value
     public double distanceUtility(GameUnit footman, List<GameUnit> archers){
     	double dist = Double.POSITIVE_INFINITY;
 		//find the distance to the closest archer
@@ -165,16 +169,12 @@ public class GameState {
 		}
 		return Math.pow(dist, -1);
     }
-    //range 0-1 based on the fraction of HP remaining for the footman
-    public double footmanHPUtility(GameUnit footman){
-    	return (double)footman.hp/footman.maxHP;
-    }
-    //range -1-0 based in the fraction of hp remaining for the archer
+    //returns a negative value based on the fraction of the archer's hp. More HP->larger negative value
     public double archerHPUtility(GameUnit archer){
     	return (double)-archer.hp/archer.maxHP;
     }
+    //If the unit is on the precomputed A* path, increase utility  
     public double aStarUtility(GameUnit footman, List<GameUnit> archers){
-
     	  //  	System.out.println("pop"+astarPath.peek().x+","+astarPath.peek().y);
     	Stack<AstarAgent.MapLocation> currentPath=astarPath0;
     	if (footman.getId()==1){
@@ -329,6 +329,7 @@ public class GameState {
 		return actionList;
     }
     
+    //footmen are generated first, will have IDs 0 and 1
     private boolean isFootmen(GameUnit unit){
     	return unit.getId()==0 || unit.getId()==1;
     }
