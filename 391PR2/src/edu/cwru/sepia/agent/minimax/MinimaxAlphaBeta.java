@@ -77,51 +77,43 @@ public class MinimaxAlphaBeta extends Agent {
      * @param beta The current best value for the minimizing node from this node to the root
      * @return The best child of this node with updated values
      */
+    /*
+     * Entry level method for alpha beta search starts the search on a player turn
+     */
     public GameStateChild alphaBetaSearch(GameStateChild node, int depth, double alpha, double beta)
     {
-    	/*
-    	List<GameStateChild> test=node.state.getChildren();
-    	System.out.println("possible action size"+test.size());
-    	for (GameStateChild c: test){
-    		System.out.println("CHILD actions:");
-    		for (Action a: c.action.values()){
-    			System.out.println("\t"+a.toString());
-    		}
-    	}
-    	return test.get(0);
-    	*/
-    	/*
-    	Map<Integer, Action> tempAction=new HashMap<Integer, Action> ();
-    	tempAction.put(1, Action.createPrimitiveMove(1, Direction.WEST));
-    	GameStateChild temp=new GameStateChild(tempAction,null);
-    	return temp;
-    	*/
-    	//start at a MAX node
-
     	GameStateChild c = alphaBetaSearch(node, depth, alpha, beta, true);
     	return c;
     	
     }
     
+    /*
+     * If only 1 ply left, it returns the child with the best heuristic value.
+     * Otherwise, recursively performs alphaBetaSearch on each child. If pruning is
+     * applicable, break and return that child, otherwise pick the best or worst child
+     * depending on whose turn it is
+     */
     public GameStateChild alphaBetaSearch(GameStateChild node, int depth, double alpha, double beta, boolean isMax)
     {
-    	if (depth <= 0){
-    		return node;
-    	}
-    	System.out.println("*DEBUG* ABsearch: plys left- " + depth);
+    	//System.out.println("*DEBUG* ABsearch: plys left- " + depth);
     	List<GameStateChild> children = orderChildrenWithHeuristics(node.state.getChildren(), isMax);
+    	if (depth <= 1){
+    		return children.get(0);
+    	}
     	ArrayList<Double> weights = new ArrayList<Double>();
     	for (GameStateChild c: children){
     		GameStateChild d = alphaBetaSearch(c, depth-1, alpha, beta, !isMax);
     		double utility = d.state.getUtility();
     		weights.add(utility);
     		if (isMax){
+    			//check for beta pruning
     			if (utility > beta){
     				return d;
     			} else {
     				alpha = Math.max(alpha, utility);
     			}
     		} else {
+    			//check for alpha pruning
     			if (utility < alpha){
     				return d;
     			} else {
@@ -149,7 +141,10 @@ public class MinimaxAlphaBeta extends Agent {
      * @param children
      * @return The list of children sorted by your heuristic.
      */
-    //places most useful child at front of the list (max utility for max nodes, min utility for min nodes)
+    /*
+     * Places most useful child at front of the list (max value for max nodes, min value for min nodes)
+     * The getUtility function of an unfinished game uses heuristics to compute a value
+     */
     public List<GameStateChild> orderChildrenWithHeuristics(List<GameStateChild> children, boolean isMax)
     {
     	Comparator<GameStateChild> sorter = new Comparator<GameStateChild>() {
@@ -180,8 +175,7 @@ public class MinimaxAlphaBeta extends Agent {
     		}
     		System.out.println("");
     	}
-    	*/
-    	//***********************************************
+    	//***********************************************/
         return children;
     }
 }

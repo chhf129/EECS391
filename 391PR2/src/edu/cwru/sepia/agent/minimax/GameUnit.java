@@ -2,6 +2,9 @@ package edu.cwru.sepia.agent.minimax;
 
 import edu.cwru.sepia.environment.model.state.Unit;
 
+/*
+ * Used to keep track of a unit's information throughout alpha beta search
+ */
 public class GameUnit {
 	public int xPosition,yPosition;
 	public int hp;

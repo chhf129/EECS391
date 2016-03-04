@@ -375,7 +375,7 @@ public class GameState {
 	    			ar = new AstarAgent.MapLocation(archers.get(1).getXPosition(), archers.get(1).getYPosition(), 0);
 	    			Stack<AstarAgent.MapLocation> tempPath2;
 	    			tempPath2=aStar.AstarSearch(f, ar, xExtent, yExtent, f, obstructions);
-	    			System.out.println("compute astarmap for footmen"+footman.xPosition+","+footman.yPosition);
+	    			//System.out.println("compute astarmap for footmen"+footman.xPosition+","+footman.yPosition);
 	    			if (tempPath.size()>tempPath2.size()){
 	    				tempPath.clear();
 	    				tempPath.addAll(tempPath2);

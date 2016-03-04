@@ -193,7 +193,7 @@ public class AstarAgent extends Agent {
                 return actions;
             }
             else {
-                System.out.println("Attacking TownHall");
+                //System.out.println("Attacking TownHall");
                 // if no more movements in the planned path then attack
                 actions.put(footmanID, Action.createPrimitiveAttack(footmanID, townhallID));
             }
@@ -205,10 +205,10 @@ public class AstarAgent extends Agent {
 
     @Override
     public void terminalStep(State.StateView newstate, History.HistoryView statehistory) {
-        System.out.println("Total turns: " + newstate.getTurnNumber());
-        System.out.println("Total planning time: " + totalPlanTime/1e9);
-        System.out.println("Total execution time: " + totalExecutionTime/1e9);
-        System.out.println("Total time: " + (totalExecutionTime + totalPlanTime)/1e9);
+        //System.out.println("Total turns: " + newstate.getTurnNumber());
+        //System.out.println("Total planning time: " + totalPlanTime/1e9);
+        //System.out.println("Total execution time: " + totalExecutionTime/1e9);
+        //System.out.println("Total time: " + (totalExecutionTime + totalPlanTime)/1e9);
     }
 
     @Override
@@ -388,7 +388,7 @@ public class AstarAgent extends Agent {
     		}
     	}
     	if (path.isEmpty()){
-    		System.out.println("No available path.");
+    		//System.out.println("No available path.");
     		System.exit(0);
     	}
     	return path;
