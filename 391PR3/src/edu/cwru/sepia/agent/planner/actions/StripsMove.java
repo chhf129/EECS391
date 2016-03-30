@@ -64,6 +64,9 @@ public class StripsMove implements StripsAction {
 				p.location = new Position(end.x, end.y);
 			}
 		}
+		//TODO add length of A* path to cost
+		newState.cost += Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
+		newState.heuristic = newState.heuristic();
 		return newState;
 	}
 
