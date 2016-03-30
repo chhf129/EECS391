@@ -1,6 +1,10 @@
 package edu.cwru.sepia.agent.planner;
 
+import edu.cwru.sepia.agent.planner.actions.StripsAction;
+import edu.cwru.sepia.environment.model.state.ResourceNode;
+import edu.cwru.sepia.environment.model.state.ResourceNode.ResourceView;
 import edu.cwru.sepia.environment.model.state.State;
+import edu.cwru.sepia.environment.model.state.Unit.UnitView;
 
 import java.util.List;
 
@@ -23,6 +27,18 @@ import java.util.List;
  */
 public class GameState implements Comparable<GameState> {
 
+	public int goldGoal, woodGoal;
+	public int xBound, yBound;
+	public int cost, heuristic;
+	public int playerID;
+	public List<ResourceView> goldmines, forests;
+	public List<UnitView> peasants;
+	public UnitView townHall;
+	public GameState parent;
+	public StripsAction cause;
+	
+	public boolean buildPeasants;
+	
     /**
      * Construct a GameState from a stateview object. This is used to construct the initial search node. All other
      * nodes should be constructed from the another constructor you create or by factory functions that you create.
@@ -34,7 +50,29 @@ public class GameState implements Comparable<GameState> {
      * @param buildPeasants True if the BuildPeasant action should be considered
      */
     public GameState(State.StateView state, int playernum, int requiredGold, int requiredWood, boolean buildPeasants) {
-        // TODO: Implement me!
+        playerID = playernum;
+    	goldGoal = requiredGold;
+        woodGoal = requiredWood;
+        this.buildPeasants = buildPeasants;
+        xBound = state.getXExtent();
+        yBound = state.getYExtent();
+        
+        List<ResourceView> resources = state.getAllResourceNodes();
+        for (ResourceView rv: resources){
+        	if (rv.getType() == ResourceNode.Type.GOLD_MINE){
+        		goldmines.add(rv);
+        	} else {
+        		forests.add(rv);
+        	}
+        }
+        List<UnitView> units = state.getUnits(playerID);
+        for(UnitView uv: units){
+        	if (uv.getTemplateView().getName().equals("TownHall")){
+        		townHall = uv;
+        	} else {
+        		peasants.add(uv);
+        	}
+        }
     }
 
     /**
