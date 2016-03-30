@@ -41,11 +41,11 @@ public class PlannerAgent extends Agent {
 
         Stack<StripsAction> plan = AstarSearch(new GameState(stateView, playernum, requiredGold, requiredWood, buildPeasants));
         
-/*        if(plan == null) {
+        if(plan == null) {
             System.err.println("No plan was found");
             System.exit(1);
             return null;
-        }*/
+        }
 		
         // write the plan to a text file
         savePlan(plan);
@@ -91,8 +91,73 @@ public class PlannerAgent extends Agent {
      * @return The plan or null if no plan is found.
      */
     private Stack<StripsAction> AstarSearch(GameState startState) {
-        // TODO: Implement me!
-        return null;
+        //create GameState priority queue
+    	PriorityQueue<GameState> openList = new PriorityQueue<GameState>();
+    	LinkedList<GameState> closedList = new LinkedList<GameState>();
+        //initialize starting values
+    	startState.heuristic = startState.heuristic();
+    	startState.cost = 0;
+    	Stack<StripsAction> sequence = new Stack<StripsAction>();
+    	openList.add(startState);
+    	
+    	//while there are nodes to explore, pop next location and explore it
+    	while(!openList.isEmpty()){
+    		GameState node = openList.poll();
+    		if (this.exploreNode(node, openList, closedList)){
+    			sequence = createSequence (node, closedList);
+    			break;
+    		}
+    	}
+    	if(sequence.isEmpty()){
+    		System.exit(0);
+    	}
+    	return sequence;
+    }
+    
+    private boolean exploreNode(GameState node, PriorityQueue<GameState> openList, LinkedList<GameState> closedList){
+    	for (GameState child: node.generateChildren()){
+    		if(child.isGoal()){
+    			return true;
+    		} else {
+    			this.examineNode(node, openList, closedList);
+    		}
+    	}
+    	openList.remove(node);
+    	closedList.addFirst(node);
+    	return false;
+    }
+    
+    private void examineNode(GameState node, PriorityQueue<GameState> openList, LinkedList<GameState> closedList){
+    	boolean valid = true;
+    	//check in closed list
+    	for (GameState gs: closedList){
+    		valid = valid && (node.equals(gs));
+    	}
+    	//check in open list
+    	if (valid){
+    		for (GameState gs: openList){
+    			if (node.equals(gs)){
+    				valid = false;
+    			}
+    		}
+    	}
+    	//if not in either list, add location to open list
+    	if(valid){
+    		openList.add(node);
+    	}
+    }
+    
+    private Stack<StripsAction> createSequence(GameState end, List<GameState> nodes){
+    	Stack<StripsAction> seq = new Stack<StripsAction>();
+    	seq.push(end.cause);
+    	if (end.parent != null){
+    		GameState prev = end.parent;
+    		while (prev.parent != null){
+    			seq.push(prev.cause);
+    			prev = prev.parent;
+    		}
+    	}
+    	return seq;
     }
 
     /**

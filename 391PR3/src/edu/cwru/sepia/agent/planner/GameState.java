@@ -235,8 +235,27 @@ public class GameState implements Comparable<GameState> {
      */
     @Override
     public boolean equals(Object o) {
-        // TODO: Implement me!
-        return false;
+    	if (!(o instanceof GameState)){
+    		return false;
+    	}
+    	GameState gs = (GameState)o;
+    	boolean same = townHall.food == gs.townHall.food && townHall.gold ==
+    			gs.townHall.gold && townHall.wood == gs.townHall.wood;
+    	if (peasants.size() == gs.peasants.size()){
+    		for (int i=0; i<peasants.size(); i++){
+    			Peasant p1 = peasants.get(i);
+    			Peasant p2 = gs.peasants.get(i);
+    			same = same && (p1.isCarrying == p2.isCarrying && p1.resourceType ==
+    					p2.resourceType && p1.resourceAmount == p2.resourceAmount);
+    		}
+    	}
+    	for(int i=0; i<forests.size(); i++){
+    		same = same && forests.get(i).amount == gs.forests.get(i).amount;
+    	}
+    	for(int i=0; i<goldmines.size(); i++){
+    		same = same && goldmines.get(i).amount == gs.goldmines.get(i).amount;
+    	}
+        return same;
     }
 
     /**
@@ -248,6 +267,7 @@ public class GameState implements Comparable<GameState> {
     @Override
     public int hashCode() {
         // TODO: Implement me!
+    	System.out.println("ERROR USED GAMESTATE.HASHCODE()");
         return 0;
     }
 }
