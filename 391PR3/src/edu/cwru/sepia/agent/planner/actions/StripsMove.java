@@ -4,8 +4,6 @@ import edu.cwru.sepia.agent.planner.GameState;
 import edu.cwru.sepia.agent.planner.GameState.Peasant;
 import edu.cwru.sepia.agent.planner.GameState.ResourceInfo;
 import edu.cwru.sepia.agent.planner.Position;
-import edu.cwru.sepia.environment.model.state.ResourceNode.ResourceView;
-import edu.cwru.sepia.environment.model.state.Unit.UnitView;
 
 public class StripsMove implements StripsAction {
 	private Position start, end;
@@ -67,6 +65,7 @@ public class StripsMove implements StripsAction {
 		//TODO add length of A* path to cost
 		newState.cost += Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
 		newState.heuristic = newState.heuristic();
+		newState.cause = this;
 		return newState;
 	}
 
