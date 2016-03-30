@@ -93,7 +93,7 @@ public class GameState implements Comparable<GameState> {
 
 	public int goldGoal, woodGoal;
 	public int xBound, yBound;
-	public int cost, heuristic;
+	public double cost, heuristic;
 	public int playerID;
 	public List<ResourceInfo> goldmines, forests;
 	public List<Peasant> peasants;
@@ -162,6 +162,8 @@ public class GameState implements Comparable<GameState> {
     	for (Peasant p: gs.peasants){
     		peasants.add(new Peasant(p));
     	}
+    	cost = gs.cost;
+    	heuristic = gs.heuristic;
     }
 
     /**
