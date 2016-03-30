@@ -6,6 +6,7 @@ import edu.cwru.sepia.environment.model.state.ResourceNode.ResourceView;
 import edu.cwru.sepia.environment.model.state.State;
 import edu.cwru.sepia.environment.model.state.Unit.UnitView;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -78,6 +79,9 @@ public class GameState implements Comparable<GameState> {
         xBound = state.getXExtent();
         yBound = state.getYExtent();
         
+        goldmines = new LinkedList<ResourceView>();
+        forests = new LinkedList<ResourceView>();
+        peasants = new LinkedList<UnitView>();
         List<ResourceView> resources = state.getAllResourceNodes();
         for (ResourceView rv: resources){
         	if (rv.getType() == ResourceNode.Type.GOLD_MINE){
