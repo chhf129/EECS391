@@ -53,18 +53,20 @@ public class GameState implements Comparable<GameState> {
 	
 	public class ResourceInfo{
 		public ResourceNode.Type type;
-		public int amount;
+		public int amount,id;
 		public Position location;
 		
 		public ResourceInfo(ResourceView rv){
 			type = rv.getType();
 			amount = rv.getAmountRemaining();
 			location = new Position(rv.getXPosition(), rv.getYPosition());
+			id=rv.getID();
 		}
 		public ResourceInfo(ResourceInfo ri){
 			type = ri.type;
 			amount = ri.amount;
 			location = new Position(ri.location.x, ri.location.y);
+			id=ri.id;
 		}
 	}
 	
@@ -100,7 +102,6 @@ public class GameState implements Comparable<GameState> {
 	public TownHallInfo townHall;
 	public GameState parent;
 	public StripsAction cause;
-	
 	public boolean buildPeasants;
 	
     /**
