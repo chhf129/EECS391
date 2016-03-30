@@ -4,7 +4,9 @@ import edu.cwru.sepia.agent.planner.actions.StripsAction;
 import edu.cwru.sepia.environment.model.state.ResourceNode;
 import edu.cwru.sepia.environment.model.state.ResourceNode.ResourceView;
 import edu.cwru.sepia.environment.model.state.State;
+import edu.cwru.sepia.environment.model.state.Unit;
 import edu.cwru.sepia.environment.model.state.Unit.UnitView;
+import edu.cwru.sepia.environment.model.state.UnitTemplate;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -48,13 +50,53 @@ public class GameState implements Comparable<GameState> {
 			location = new Position(thi.location.x, thi.location.y);
 		}
 	}
+	
+	public class ResourceInfo{
+		public ResourceNode.Type type;
+		public int amount;
+		public Position location;
+		
+		public ResourceInfo(ResourceView rv){
+			type = rv.getType();
+			amount = rv.getAmountRemaining();
+			location = new Position(rv.getXPosition(), rv.getYPosition());
+		}
+		public ResourceInfo(ResourceInfo ri){
+			type = ri.type;
+			amount = ri.amount;
+			location = new Position(ri.location.x, ri.location.y);
+		}
+	}
+	
+	public class Peasant{
+		public int id;
+		public boolean isCarrying;
+		public ResourceNode.Type resourceType;
+		public int resourceAmount;
+		public Position location;
+		
+		public Peasant(UnitView uv){
+			id = uv.getID();
+			isCarrying = false;
+			resourceType = null;
+			resourceAmount = 0;
+			location = new Position(uv.getXPosition(), uv.getYPosition());
+		}
+		public Peasant(Peasant p){
+			id = p.id;
+			isCarrying = p.isCarrying;
+			resourceType = p.resourceType;
+			resourceAmount = p.resourceAmount;
+			location = new Position(p.location.x, p.location.y);
+		}
+	}
 
 	public int goldGoal, woodGoal;
 	public int xBound, yBound;
 	public int cost, heuristic;
 	public int playerID;
-	public List<ResourceView> goldmines, forests;
-	public List<UnitView> peasants;
+	public List<ResourceInfo> goldmines, forests;
+	public List<Peasant> peasants;
 	public TownHallInfo townHall;
 	public GameState parent;
 	public StripsAction cause;
@@ -79,15 +121,15 @@ public class GameState implements Comparable<GameState> {
         xBound = state.getXExtent();
         yBound = state.getYExtent();
         
-        goldmines = new LinkedList<ResourceView>();
-        forests = new LinkedList<ResourceView>();
-        peasants = new LinkedList<UnitView>();
+        goldmines = new LinkedList<ResourceInfo>();
+        forests = new LinkedList<ResourceInfo>();
+        peasants = new LinkedList<Peasant>();
         List<ResourceView> resources = state.getAllResourceNodes();
         for (ResourceView rv: resources){
         	if (rv.getType() == ResourceNode.Type.GOLD_MINE){
-        		goldmines.add(rv);
+        		goldmines.add(new ResourceInfo(rv));
         	} else {
-        		forests.add(rv);
+        		forests.add(new ResourceInfo(rv));
         	}
         }
         List<UnitView> units = state.getUnits(playerID);
@@ -95,9 +137,31 @@ public class GameState implements Comparable<GameState> {
         	if (uv.getTemplateView().getName().equals("TownHall")){
         		townHall = new TownHallInfo(uv);
         	} else {
-        		peasants.add(uv);
+        		peasants.add(new Peasant(uv));
         	}
         }
+    }
+    
+    public GameState (GameState gs){
+    	playerID = gs.playerID;
+    	goldGoal = gs.goldGoal;
+    	woodGoal = gs.woodGoal;
+    	buildPeasants = gs.buildPeasants;
+    	xBound = gs.xBound;
+    	yBound = gs.yBound;
+    	townHall = new TownHallInfo(gs.townHall);
+    	goldmines = new LinkedList<ResourceInfo>();
+    	for (ResourceInfo ri: gs.goldmines){
+    		goldmines.add(new ResourceInfo(ri));
+    	}
+    	forests = new LinkedList<ResourceInfo>();
+    	for (ResourceInfo ri: gs.forests){
+    		forests.add(new ResourceInfo(ri));
+    	}
+    	peasants = new LinkedList<Peasant>();
+    	for (Peasant p: gs.peasants){
+    		peasants.add(new Peasant(p));
+    	}
     }
 
     /**
