@@ -26,6 +26,27 @@ import java.util.List;
  * class/structure you use to represent actions.
  */
 public class GameState implements Comparable<GameState> {
+	
+	//tracks town hall information such as gold and wood
+	public class TownHallInfo{
+		public int wood;
+		public int gold;
+		public int food;
+		public Position location;
+		
+		public TownHallInfo(UnitView uv){
+			wood = 0;
+			gold = 0;
+			food = 3;
+			location = new Position(uv.getXPosition(), uv.getYPosition());
+		}
+		public TownHallInfo(TownHallInfo thi){
+			wood = thi.wood;
+			gold = thi.gold;
+			food = thi.food;
+			location = new Position(thi.location.x, thi.location.y);
+		}
+	}
 
 	public int goldGoal, woodGoal;
 	public int xBound, yBound;
@@ -33,7 +54,7 @@ public class GameState implements Comparable<GameState> {
 	public int playerID;
 	public List<ResourceView> goldmines, forests;
 	public List<UnitView> peasants;
-	public UnitView townHall;
+	public TownHallInfo townHall;
 	public GameState parent;
 	public StripsAction cause;
 	
@@ -68,7 +89,7 @@ public class GameState implements Comparable<GameState> {
         List<UnitView> units = state.getUnits(playerID);
         for(UnitView uv: units){
         	if (uv.getTemplateView().getName().equals("TownHall")){
-        		townHall = uv;
+        		townHall = new TownHallInfo(uv);
         	} else {
         		peasants.add(uv);
         	}
@@ -83,7 +104,9 @@ public class GameState implements Comparable<GameState> {
      * @return true if the goal conditions are met in this instance of game state.
      */
     public boolean isGoal() {
-        // TODO: Implement me!
+        if (townHall.gold == goldGoal && townHall.wood == woodGoal){
+        	return true;
+        }
         return false;
     }
 
