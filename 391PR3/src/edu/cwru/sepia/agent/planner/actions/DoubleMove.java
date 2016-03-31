@@ -43,4 +43,7 @@ public class DoubleMove implements StripsAction{
 		return null;
 	}
 
+	public String toString(){
+		return "DoubleMove:\n\t" + move1.toString() + "\n\t" + move2.toString();
+	}
 }

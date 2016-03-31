@@ -73,4 +73,8 @@ public class DoubleGather implements StripsAction {
 		}
 		return null;
 	}
+	
+	public String toString(){
+		return "DoubleGather:\n\t" + gather1.toString() + "\n\t" + gather2.toString();
+	}
 }

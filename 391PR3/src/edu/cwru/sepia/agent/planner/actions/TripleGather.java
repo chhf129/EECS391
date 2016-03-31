@@ -76,4 +76,8 @@ public class TripleGather implements StripsAction {
 		}
 		return null;
 	}
+	
+	public String toString(){
+		return "TripleGather:\n\t" + gather1.toString() + "\n\t" + gather2.toString() + "\n\t" + gather3.toString();
+	}
 }

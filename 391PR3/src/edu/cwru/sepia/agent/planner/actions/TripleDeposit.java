@@ -58,4 +58,7 @@ public class TripleDeposit implements StripsAction {
 		return null;
 	}
 
+	public String toString(){
+		return "TripleDeposit:\n\t" + deposit1.toString() + "\n\t" + deposit2.toString() + "\n\t" + deposit3.toString();
+	}
 }

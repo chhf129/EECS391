@@ -51,4 +51,7 @@ public class TripleMove implements StripsAction {
 		return newState;
 	}
 
+	public String toString(){
+		return "TripleMove:\n\t" + move1.toString() + "\n\t" + move2.toString() + "\n\t" + move3.toString();
+	}
 }

@@ -56,4 +56,7 @@ public class DoubleDeposit implements StripsAction {
 		return null;
 	}
 
+	public String toString(){
+		return "DoubleDeposit:\n\t" + deposit1.toString() + "\n\t" + deposit2.toString();
+	}
 }
