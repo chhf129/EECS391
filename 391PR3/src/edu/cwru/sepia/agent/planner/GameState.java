@@ -183,17 +183,13 @@ public class GameState implements Comparable<GameState> {
     	Peasant peasnt=peasants.get(0);
       	List<GameState> returnList = new LinkedList<>();
     	if (peasnt.isCarrying){
-    		if (peasnt.location.isAdjacent(townHall.location)){
-    			DepositGold depositG=new DepositGold(peasnt.id);
-    			if (depositG.preconditionsMet(this)){
-    				returnList.add(depositG.apply(this));
-    			}
-    			else {
-    				DepositWood depositW=new DepositWood(peasnt.id);
-        			if (depositW.preconditionsMet(this)){
-        				returnList.add(depositW.apply(this));
-        			}
-    			}
+    		DepositGold depositG=new DepositGold(peasnt.id);
+    		DepositWood depositW=new DepositWood(peasnt.id);
+    		if (depositG.preconditionsMet(this)){
+    			returnList.add(depositG.apply(this));
+    		}
+    		else if (depositW.preconditionsMet(this)){
+        		returnList.add(depositW.apply(this));
     		}
     		else{
     			Position minPos=findClosestTile(townHall.location,peasnt.location);
@@ -207,56 +203,62 @@ public class GameState implements Comparable<GameState> {
     	}
     	
     	else{
-    		//goldTarget and woodTarget is the closest gold mine/tree to peasant(0), while still has resource remain
-    		ResourceInfo goldTarget=null,woodTarget=null;
-    		double minDis=Double.MAX_VALUE;
-    		for (ResourceInfo r:goldmines){
-    			if (r.amount>0){
-    				if (r.location.euclideanDistance(townHall.location)<minDis){
-    					minDis=r.location.euclideanDistance(townHall.location);
-    					goldTarget=r;
-    				}
-    			}
-    		}
-    		minDis=Double.MAX_VALUE;
-    		for (ResourceInfo r:forests){
-    			if (r.amount>0){
-    				if (r.location.euclideanDistance(townHall.location)<minDis){
-    					minDis=r.location.euclideanDistance(townHall.location);
-    					woodTarget=r;
-    				}
-    			}
-    		}
-    		
-    		
-    		GatherGold gatherG=new GatherGold(peasnt.id,goldTarget.id);
-    		if (gatherG.preconditionsMet(this)){
-    			returnList.add(gatherG.apply(this));
-    		}
-    		else{
-    			Position closestG=findClosestTile(goldTarget.location,peasnt.location);
-    			StripsMove move=new StripsMove(peasnt.id,peasnt.location,closestG);
-    			if (move.preconditionsMet(this)){  //this should always true,right?
-    				GameState afterMove=move.apply(this);
-    				returnList.add(afterMove);
-    			}
-    		}
-    		
-    		
-    		GatherWood gatherW=new GatherWood(peasnt.id,woodTarget.id);
-    		if (gatherW.preconditionsMet(this)){
-    			returnList.add(gatherW.apply(this));
-    		}
-    		else{
-    			Position closestW=findClosestTile(woodTarget.location,peasnt.location);
-    			StripsMove move=new StripsMove(peasnt.id,peasnt.location,closestW);
-    			if (move.preconditionsMet(this)){  //this should always true,right?
-    				GameState afterMove=move.apply(this);
-    				returnList.add(afterMove);
-    			}
-    		}
-    		
-    	}
+			// goldTarget and woodTarget is the closest gold mine/tree to
+			// peasant(0), while still has resource remain
+			double minDis = Double.MAX_VALUE;
+
+			if (townHall.gold < goldGoal) {
+				ResourceInfo goldTarget = null;
+				for (ResourceInfo r : goldmines) {
+					if (r.amount > 0) {
+						if (r.location.euclideanDistance(townHall.location) < minDis) {
+							minDis = r.location.euclideanDistance(townHall.location);
+							goldTarget = r;
+						}
+					}
+				}
+
+				GatherGold gatherG = new GatherGold(peasnt.id, goldTarget.id);
+				if (gatherG.preconditionsMet(this)) {
+					returnList.add(gatherG.apply(this));
+				} else {
+					Position closestG = findClosestTile(goldTarget.location,peasnt.location);
+					StripsMove move = new StripsMove(peasnt.id, peasnt.location, closestG);
+					if (move.preconditionsMet(this)) { // this should always true,right?
+						GameState afterMove = move.apply(this);
+						returnList.add(afterMove);
+					}
+				}
+			}
+			
+			
+			if (townHall.wood < woodGoal) {
+				minDis = Double.MAX_VALUE;
+				ResourceInfo woodTarget = null;
+				for (ResourceInfo r : forests) {
+					if (r.amount > 0) {
+						if (r.location.euclideanDistance(townHall.location) < minDis) {
+							minDis = r.location.euclideanDistance(townHall.location);
+							woodTarget = r;
+						}
+					}
+				}
+
+				GatherWood gatherW = new GatherWood(peasnt.id, woodTarget.id);
+				if (gatherW.preconditionsMet(this)) {
+					returnList.add(gatherW.apply(this));
+				} 
+				else {
+					Position closestW = findClosestTile(woodTarget.location, peasnt.location);
+					StripsMove move = new StripsMove(peasnt.id, peasnt.location, closestW);
+					if (move.preconditionsMet(this)) { // this should always true,right?
+						GameState afterMove = move.apply(this);
+						returnList.add(afterMove);
+					}
+				}
+			}
+
+		}
         return returnList;
     }
     	private Position findClosestTile(Position a,Position b){

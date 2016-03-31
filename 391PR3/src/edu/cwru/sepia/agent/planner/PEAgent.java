@@ -102,13 +102,15 @@ public class PEAgent extends Agent {
     	if (plan.isEmpty()){
     		return actions;
     	}
-        StripsAction action=plan.pop();
+        StripsAction action=plan.peek();
     	if (action instanceof BuildPeasant){
+    		
     		actions.put(townhallId, createSepiaAction(action,stateView));
+    		plan.pop();
     	}
     	else{
-    		int unitID=((DepositGold) action).unitID;
-    		Unit.UnitView unit=stateView.getUnit(unitID);
+    		Action tempAction=createSepiaAction(action,stateView);
+    		int unitID=tempAction.getUnitId();
     		
     		if (stateView.getTurnNumber() != 0) {
 
@@ -125,12 +127,11 @@ public class PEAgent extends Agent {
     			  ActionResult result=actionResults.get(unitID);
     			  if (result.getFeedback().equals(ActionFeedback.COMPLETED)){
     				  actions.put(unitID, createSepiaAction(action,stateView));
+    				  plan.pop();
     			  }
     			}
     		
     	}
-   //     List<Unit.UnitView> temp=stateView.getAllUnits();
-   //     actions.put(temp.get(1).getID(), Action.createCompoundMove(temp.get(1).getID(),21,15));
         return actions;
     }
 
@@ -147,23 +148,41 @@ public class PEAgent extends Agent {
     		returnAction=Action.createPrimitiveProduction(townhallId,peasantTemplateId);
     	}
     	else{
-    		Unit.UnitView peasant=stateView.getUnit(((DepositGold) action).unitID);
-    		Position unitPos=new Position(peasant.getXPosition(),peasant.getYPosition());
-    		int unitID=((DepositGold) action).unitID;
-    		if (action instanceof DepositGold || action instanceof DepositWood){
+    		Unit.UnitView peasant;
+    		Position unitPos;
+    		int unitID;
+    		if (action instanceof DepositGold ){
+    			unitID=((DepositGold) action).unitID;
+    			peasant=stateView.getUnit(unitID);
+    			unitPos=new Position(peasant.getXPosition(),peasant.getYPosition());
+    			returnAction=Action.createPrimitiveDeposit(unitID,unitPos.getDirection(townHallPos));
+    		}
+    		else if (action instanceof DepositWood){
+    			unitID=((DepositWood) action).unitID;
+    			peasant=stateView.getUnit(unitID);
+    			unitPos=new Position(peasant.getXPosition(),peasant.getYPosition());
     			returnAction=Action.createPrimitiveDeposit(unitID,unitPos.getDirection(townHallPos));
     		}
     		else if (action instanceof GatherGold){
+    			unitID=((GatherGold) action).unitID;
+    			peasant=stateView.getUnit(unitID);
+    			unitPos=new Position(peasant.getXPosition(),peasant.getYPosition());
+    			
     			ResourceView gold=stateView.getResourceNode(((GatherGold) action).goldID);
     			Position resPos=new Position(gold.getXPosition(),gold.getYPosition());
     			returnAction=Action.createPrimitiveGather(unitID, unitPos.getDirection(resPos));
     		}
     		else if (action instanceof GatherWood){
+    			unitID=((GatherWood) action).unitID;
+    			peasant=stateView.getUnit(unitID);
+    			unitPos=new Position(peasant.getXPosition(),peasant.getYPosition());
+    			
     			ResourceView wood=stateView.getResourceNode(((GatherWood) action).woodID);
     			Position resPos=new Position(wood.getXPosition(),wood.getYPosition());
     			returnAction=Action.createPrimitiveGather(unitID, unitPos.getDirection(resPos));
     		}
     		else if (action instanceof StripsMove){
+    			unitID=((StripsMove) action).unitID;
     			Position end=((StripsMove) action).end;
     			returnAction=Action.createCompoundMove(unitID, end.x, end.y);
     		}
