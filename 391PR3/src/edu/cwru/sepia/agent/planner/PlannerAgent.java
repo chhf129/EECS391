@@ -106,7 +106,7 @@ public class PlannerAgent extends Agent {
     		GameState node = openList.poll();
     		GameState finish = this.exploreNode(node, openList, closedList);
     		if (finish != null){
-    			sequence = createSequence (node, closedList);
+    			sequence = createSequence (finish, closedList);
     			break;
     		}
     	}
@@ -133,13 +133,13 @@ public class PlannerAgent extends Agent {
     	return null;
     }
     
-    private void examineNode(GameState node, PriorityQueue<GameState> openList, LinkedList<GameState> closedList){
+    private void examineNode(GameState child, PriorityQueue<GameState> openList, LinkedList<GameState> closedList){
     	System.out.println("examining child");
-    	node.printStatus();
+    	child.printStatus();
     	boolean valid = true;
     	//check in closed list
     	for (GameState gs: closedList){
-    		valid = valid && (node.equals(gs));
+    		valid = valid && !child.equals(gs);
     	}
 		if (!valid){
 			System.out.println("found child in closed list");
@@ -147,9 +147,7 @@ public class PlannerAgent extends Agent {
     	//check in open list
     	if (valid){
     		for (GameState gs: openList){
-    			if (node.equals(gs)){
-    				valid = false;
-    			}
+    			valid = valid && !child.equals(gs);
     		}
     		if (!valid){
     			System.out.println("found child in open list");
@@ -158,7 +156,7 @@ public class PlannerAgent extends Agent {
     	//if not in either list, add location to open list
     	if(valid){
     		System.out.println("adding child");
-    		openList.add(node);
+    		openList.add(child);
     		System.out.println(openList.size());
     	}
     }
