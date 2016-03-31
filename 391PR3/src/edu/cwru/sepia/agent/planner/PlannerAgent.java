@@ -119,6 +119,7 @@ public class PlannerAgent extends Agent {
     
     private GameState exploreNode(GameState node, PriorityQueue<GameState> openList, LinkedList<GameState> closedList){
     	System.out.println("exploring node");
+    	node.printStatus();
     	for (GameState child: node.generateChildren()){
     		if(child.isGoal()){
     			System.out.println("found goal");
@@ -134,6 +135,7 @@ public class PlannerAgent extends Agent {
     
     private void examineNode(GameState node, PriorityQueue<GameState> openList, LinkedList<GameState> closedList){
     	System.out.println("examining child");
+    	node.printStatus();
     	boolean valid = true;
     	//check in closed list
     	for (GameState gs: closedList){
@@ -149,10 +151,10 @@ public class PlannerAgent extends Agent {
     				valid = false;
     			}
     		}
+    		if (!valid){
+    			System.out.println("found child in open list");
+    		}
     	}
-		if (!valid){
-			System.out.println("found child in open list");
-		}
     	//if not in either list, add location to open list
     	if(valid){
     		System.out.println("adding child");

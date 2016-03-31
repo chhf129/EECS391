@@ -138,6 +138,27 @@ public class GameState implements Comparable<GameState> {
     	}
     	return empty;
     }
+    
+    public void printStatus(){
+    	System.out.println("State");
+    	System.out.println("\tTH: " + townHall.gold + " gold, " + townHall.wood + " wood, " + townHall.food + " food");
+    	System.out.println("\tPeasants:");
+    	for (Peasant p: peasants){
+    		System.out.print("\t\t" + p.id + " at ("+p.location.x+", "+p.location.y+")");
+    		if (p.isCarrying){
+    			System.out.print(" carrying " + p.resourceAmount + " " + p.resourceType.name());
+    		}
+    		System.out.println();
+    	}
+    	System.out.println("\tGoldmines");
+    	for (ResourceInfo ri: goldmines){
+    		System.out.println("\t\t" + ri.id + " has " + ri.amount);
+    	}
+    	System.out.println("\tForests");
+    	for (ResourceInfo ri: forests){
+    		System.out.println("\t\t" + ri.id + " has " + ri.amount);
+    	}
+    }
 
     /**
      * Unlike in the first A* assignment there are many possible goal states. As long as the wood and gold requirements
