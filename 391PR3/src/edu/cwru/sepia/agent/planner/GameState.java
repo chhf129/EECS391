@@ -104,6 +104,8 @@ public class GameState implements Comparable<GameState> {
     	for (Peasant p: gs.peasants){
     		peasants.add(new Peasant(p));
     	}
+    	parent=gs.parent;
+    	cause=gs.cause;
     	cost = gs.cost;
     	heuristic = gs.heuristic;
     }
