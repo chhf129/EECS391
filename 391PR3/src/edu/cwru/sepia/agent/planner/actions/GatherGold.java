@@ -51,7 +51,10 @@ public class GatherGold implements StripsAction {
 		peasant.resourceAmount=100;
 		peasant.resourceType=ResourceNode.Type.GOLD_MINE;
 		gold.amount-=100;
-		
+		newState.cost += 1;
+		newState.heuristic = newState.heuristic();
+		newState.cause = this;
+		newState.parent = state;
 		
 		return newState;
 	}

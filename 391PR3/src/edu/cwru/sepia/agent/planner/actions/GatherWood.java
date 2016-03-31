@@ -51,6 +51,10 @@ public class GatherWood implements StripsAction {
 		peasant.resourceAmount=100;
 		peasant.resourceType=ResourceNode.Type.TREE;
 		wood.amount-=100;
+		newState.cost += 1;
+		newState.heuristic = newState.heuristic();
+		newState.cause = this;
+		newState.parent = state;
 		return newState;
 	}
 	

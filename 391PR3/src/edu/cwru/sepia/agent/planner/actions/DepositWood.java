@@ -37,7 +37,10 @@ public class DepositWood implements StripsAction {
 		townhall.wood+=100;
 		peasant.isCarrying=false;
 		peasant.resourceAmount=0;
-		
+		newState.cost += 1;
+		newState.heuristic = newState.heuristic();
+		newState.cause = this;
+		newState.parent = state;
 		return newState;
 	}
 
