@@ -68,6 +68,7 @@ public class StripsMove implements StripsAction {
 		newState.cost += a.findPath(state, unitID, end).size();
 		newState.heuristic = newState.heuristic();
 		newState.cause = this;
+		newState.parent = state;
 		return newState;
 	}
 	
