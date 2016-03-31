@@ -30,6 +30,7 @@ import java.util.List;
  */
 public class GameState implements Comparable<GameState> {
 	
+	//useful information
 	public int goldGoal, woodGoal;
 	public int xBound, yBound;
 	public double cost, heuristic;
@@ -80,6 +81,7 @@ public class GameState implements Comparable<GameState> {
         }
     }
     
+    //clones a GameState
     public GameState (GameState gs){
     	playerID = gs.playerID;
     	goldGoal = gs.goldGoal;
@@ -104,6 +106,12 @@ public class GameState implements Comparable<GameState> {
     	heuristic = gs.heuristic;
     }
     
+    /**
+     * Checks if a Position is in bounds and unoccupied
+     * 
+     * @param p the Position to check
+     * @return true it the position is in bounds and empty
+     */
     public boolean checkOpenPosition(Position p){
     	boolean empty = p.inBounds(xBound, yBound) && !p.equals(townHall.location);
     	if (empty){
@@ -137,10 +145,7 @@ public class GameState implements Comparable<GameState> {
      * @return true if the goal conditions are met in this instance of game state.
      */
     public boolean isGoal() {
-        if (townHall.gold == goldGoal && townHall.wood == woodGoal){
-        	return true;
-        }
-        return false;
+        return townHall.gold == goldGoal && townHall.wood == woodGoal;
     }
 
     /**
@@ -158,18 +163,29 @@ public class GameState implements Comparable<GameState> {
      * Write your heuristic function here. Remember this must be admissible for the properties of A* to hold. If you
      * can come up with an easy way of computing a consistent heuristic that is even better, but not strictly necessary.
      *
-     * Add a description here in your submission explaining your heuristic.
+     * Estimates the cost based on the amount of resource that still need to be collected. Prioritizes gold
+     * over wood (since it can be used to build peasants) and building peasants over other actions.
      *
      * @return The value estimated remaining cost to reach a goal state from this state.
      */
     public double heuristic() {
-        return goldGoal - townHall.gold + woodGoal - townHall.wood;
+        double h = goldGoal - townHall.gold + woodGoal - townHall.wood;
+        for (Peasant p: peasants){
+        	if (p.isCarrying && p.resourceType == ResourceNode.Type.GOLD_MINE){
+        		h += 25;
+        	} else if (p.isCarrying && p.resourceType == ResourceNode.Type.TREE){
+        		h += 50;
+        	}
+        }
+        return h/peasants.size();
     }
 
     /**
      *
      * Write the function that computes the current cost to get to this node. This is combined with your heuristic to
      * determine which actions/states are better to explore.
+     *
+     * Cost is tracked during the A* search, so this just returns the tracked cost.
      *
      * @return The current cost to reach this goal
      */
@@ -192,6 +208,9 @@ public class GameState implements Comparable<GameState> {
     /**
      * This will be necessary to use the GameState as a key in a Set or Map.
      *
+     * Determines equality based on town hall and resource contents as well as
+     * peasant attributes including location.
+     *
      * @param o The game state to compare
      * @return True if this state equals the other state, false otherwise.
      */
@@ -208,7 +227,8 @@ public class GameState implements Comparable<GameState> {
     			Peasant p1 = peasants.get(i);
     			Peasant p2 = gs.peasants.get(i);
     			same = same && (p1.isCarrying == p2.isCarrying && p1.resourceType ==
-    					p2.resourceType && p1.resourceAmount == p2.resourceAmount);
+    					p2.resourceType && p1.resourceAmount == p2.resourceAmount &&
+    					p1.location.equals(p2.location));
     		}
     	}
     	for(int i=0; i<forests.size(); i++){
