@@ -3,6 +3,10 @@ package edu.cwru.sepia.agent.planner.actions;
 import edu.cwru.sepia.agent.planner.GameState;
 import edu.cwru.sepia.agent.planner.Position;
 
+/**
+ * Implements two moves in parallel by performing them sequentially
+ * but only increasing the cost by the longer move.
+ */
 public class DoubleMove implements StripsAction{
 	public int unit1, unit2;
 	public Position start1, start2, end1, end2;

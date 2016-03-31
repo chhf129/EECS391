@@ -4,6 +4,12 @@ import edu.cwru.sepia.agent.planner.GameState;
 import edu.cwru.sepia.agent.planner.Peasant;
 import edu.cwru.sepia.environment.model.state.ResourceNode;
 
+/**
+ * Implements two deposit actions in parallel by performing them sequentially
+ * and only increasing the cost by 1 action. The kind of deposit actions to be
+ * performed are determined by the resources held by the peasants indicated by
+ * the IDs passed in
+ */
 public class DoubleDeposit implements StripsAction {
 
 	public int unit1, unit2;
@@ -31,6 +37,12 @@ public class DoubleDeposit implements StripsAction {
 		return null;
 	}
 	
+	/**
+	 * Generates an appropriate deposit action based on what the peasant is carrying
+	 * @param unitID ID of the peasant
+	 * @param state state to look in
+	 * @return
+	 */
 	public StripsAction generateDeposit(int unitID, GameState state){
 		for (Peasant p: state.peasants){
 			if (p.id == unitID){

@@ -4,6 +4,12 @@ import edu.cwru.sepia.agent.planner.GameState;
 import edu.cwru.sepia.agent.planner.ResourceInfo;
 import edu.cwru.sepia.environment.model.state.ResourceNode;
 
+/**
+ * Implements two gather actions in parallel by performing them sequentially
+ * and only increasing the cost by 1 action. The kind of gather actions to be
+ * performed are determined by the resources indicated by the id's passed in.
+ *
+ */
 public class DoubleGather implements StripsAction {
 
 	public int unit1, unit2, resource1, resource2;
@@ -18,10 +24,8 @@ public class DoubleGather implements StripsAction {
 	
 	@Override
 	public boolean preconditionsMet(GameState state) {
-		ResourceNode.Type t = findResourceType(resource1, state);
-		gather1 = generateGather(unit1, resource1, t);
-		t = findResourceType(resource2, state);
-		gather2 = generateGather(unit2, resource2, t);
+		gather1 = generateGather(unit1, resource1, state);
+		gather2 = generateGather(unit2, resource2, state);
 		return gather1.preconditionsMet(state) && gather2.preconditionsMet(state);
 	}
 
@@ -35,6 +39,27 @@ public class DoubleGather implements StripsAction {
 		return null;
 	}
 	
+	/**
+	 * Generates an appropriate Strips action given a kind of resource to gather
+	 * @param unitID Id of unit to perform action
+	 * @param resourceID Id of resource to gather from
+	 * @param type Type of resource to gather
+	 * @return
+	 */
+	public StripsAction generateGather(int unitID, int resourceID, GameState state){
+		if (findResourceType(resourceID, state) == ResourceNode.Type.GOLD_MINE){
+			return new GatherGold(unitID, resourceID);
+		} else {
+			return new GatherWood(unitID, resourceID);
+		}
+	}
+	
+	/**
+	 * Given a resource id, searches for it in the state and returns its type
+	 * @param id Id of the resource to find
+	 * @param state State to search in
+	 * @return the ResourceNode.Type corresponding to the resource
+	 */
 	public ResourceNode.Type findResourceType(int id, GameState state){
 		for (ResourceInfo ri: state.goldmines){
 			if (ri.id == id){
@@ -48,13 +73,4 @@ public class DoubleGather implements StripsAction {
 		}
 		return null;
 	}
-	
-	public StripsAction generateGather(int unitID, int resourceID, ResourceNode.Type type){
-		if (type == ResourceNode.Type.GOLD_MINE){
-			return new GatherGold(unitID, resourceID);
-		} else {
-			return new GatherWood(unitID, resourceID);
-		}
-	}
-
 }
