@@ -50,7 +50,7 @@ public class GatherWood implements StripsAction {
 		peasant.isCarrying=true;
 		peasant.resourceAmount=100;
 		peasant.resourceType=ResourceNode.Type.TREE;
-		
+		wood.amount-=100;
 		return newState;
 	}
 	

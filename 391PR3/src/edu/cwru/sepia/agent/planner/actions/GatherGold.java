@@ -50,6 +50,8 @@ public class GatherGold implements StripsAction {
 		peasant.isCarrying=true;
 		peasant.resourceAmount=100;
 		peasant.resourceType=ResourceNode.Type.GOLD_MINE;
+		gold.amount-=100;
+		
 		
 		return newState;
 	}

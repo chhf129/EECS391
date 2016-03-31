@@ -214,7 +214,10 @@ public class GameState implements Comparable<GameState> {
     			Position closestG=findClosestTile(goldTarget.location,peasnt.location);
     			StripsMove move=new StripsMove(peasnt.id,peasnt.location,closestG);
     			if (move.preconditionsMet(this)){  //this should always true,right?
-    				returnList.add(gatherG.apply(move.apply(this)));
+    				GameState afterMove=move.apply(this);
+    				if (gatherG.preconditionsMet(afterMove)){
+    					returnList.add(gatherG.apply(afterMove));
+    				}
     			}
     		}
     		
@@ -227,7 +230,10 @@ public class GameState implements Comparable<GameState> {
     			Position closestW=findClosestTile(woodTarget.location,peasnt.location);
     			StripsMove move=new StripsMove(peasnt.id,peasnt.location,closestW);
     			if (move.preconditionsMet(this)){  //this should always true,right?
-    				returnList.add(gatherW.apply(move.apply(this)));
+    				GameState afterMove=move.apply(this);
+    				if (gatherW.preconditionsMet(afterMove)){
+    					returnList.add(gatherW.apply(afterMove));
+    				}
     			}
     		}
     		
