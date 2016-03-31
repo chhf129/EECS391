@@ -114,7 +114,8 @@ public class PEAgent extends Agent {
     		
     		if (stateView.getTurnNumber() != 0) {
 
-    			  Map<Integer, ActionResult> actionResults = historyView.getCommandFeedback(unitID, stateView.getTurnNumber() - 1);
+    			  Map<Integer, ActionResult> actionResults = historyView.getCommandFeedback(playernum, stateView.getTurnNumber() - 1);
+    			  
     			  
     			  for (ActionResult result : actionResults.values()) {
     				  if (actionResults.size()!=1){
@@ -125,10 +126,10 @@ public class PEAgent extends Agent {
     			  }
     			  
     			  ActionResult result=actionResults.get(unitID);
-    			  if (result.getFeedback().equals(ActionFeedback.COMPLETED)){
-    				  actions.put(unitID, createSepiaAction(action,stateView));
+    			  if (result==null || result.getFeedback().equals(ActionFeedback.COMPLETED)){
+    				  actions.put(unitID, tempAction);
     				  plan.pop();
-    			  }
+   			  }
     			}
     		
     	}
