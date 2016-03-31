@@ -152,6 +152,7 @@ public class PEAgent extends Agent {
     		Unit.UnitView peasant;
     		Position unitPos;
     		int unitID;
+    		/*
     		if (action instanceof DepositGold ){
     			unitID=((DepositGold) action).unitID;
     			peasant=stateView.getUnit(unitID);
@@ -164,6 +165,23 @@ public class PEAgent extends Agent {
     			unitPos=new Position(peasant.getXPosition(),peasant.getYPosition());
     			returnAction=Action.createPrimitiveDeposit(unitID,unitPos.getDirection(townHallPos));
     		}
+    		*/
+    		if (action instanceof DepositRes ){
+    			unitID=((DepositRes) action).unitID;
+    			peasant=stateView.getUnit(unitID);
+    			unitPos=new Position(peasant.getXPosition(),peasant.getYPosition());
+    			returnAction=Action.createPrimitiveDeposit(unitID,unitPos.getDirection(townHallPos));
+    		}
+    		else if (action instanceof GatherRes){
+    			unitID=((GatherRes) action).unitID;
+    			peasant=stateView.getUnit(unitID);
+    			unitPos=new Position(peasant.getXPosition(),peasant.getYPosition());
+    			
+    			ResourceView res=stateView.getResourceNode(((GatherRes) action).resID);
+    			Position resPos=new Position(res.getXPosition(),res.getYPosition());
+    			returnAction=Action.createPrimitiveGather(unitID, unitPos.getDirection(resPos));
+    		}
+    		/*
     		else if (action instanceof GatherGold){
     			unitID=((GatherGold) action).unitID;
     			peasant=stateView.getUnit(unitID);
@@ -182,6 +200,8 @@ public class PEAgent extends Agent {
     			Position resPos=new Position(wood.getXPosition(),wood.getYPosition());
     			returnAction=Action.createPrimitiveGather(unitID, unitPos.getDirection(resPos));
     		}
+    		*/
+    		
     		else if (action instanceof StripsMove){
     			unitID=((StripsMove) action).unitID;
     			Position end=((StripsMove) action).end;

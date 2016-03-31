@@ -2,9 +2,11 @@ package edu.cwru.sepia.agent.planner;
 
 import edu.cwru.sepia.action.Action;
 import edu.cwru.sepia.agent.planner.actions.DepositGold;
+import edu.cwru.sepia.agent.planner.actions.DepositRes;
 import edu.cwru.sepia.agent.planner.actions.DepositWood;
 import edu.cwru.sepia.agent.planner.actions.DoubleDeposit;
 import edu.cwru.sepia.agent.planner.actions.GatherGold;
+import edu.cwru.sepia.agent.planner.actions.GatherRes;
 import edu.cwru.sepia.agent.planner.actions.GatherWood;
 import edu.cwru.sepia.agent.planner.actions.StripsAction;
 import edu.cwru.sepia.agent.planner.actions.StripsMove;
@@ -209,6 +211,11 @@ public class GameState implements Comparable<GameState> {
     private List<GameState> getAllActions(Peasant peasnt){
       	List<GameState> returnList = new LinkedList<>();
     	if (peasnt.isCarrying){
+    		DepositRes depositR=new DepositRes(peasnt.id);
+    		if (depositR.preconditionsMet(this)){
+    			returnList.add(depositR.apply(this));
+    		}
+    		/*
     		DepositGold depositG=new DepositGold(peasnt.id);
     		DepositWood depositW=new DepositWood(peasnt.id);
     		if (depositG.preconditionsMet(this)){
@@ -217,6 +224,7 @@ public class GameState implements Comparable<GameState> {
     		else if (depositW.preconditionsMet(this)){
         		returnList.add(depositW.apply(this));
     		}
+    		*/
     		else{
     			Position minPos=findClosestTile(townHall.location,peasnt.location);
     			GameState afterMove=new GameState(this);
@@ -232,9 +240,9 @@ public class GameState implements Comparable<GameState> {
 			// goldTarget and woodTarget is the closest gold mine/tree to
 			// peasant(0), while still has resource remain
 			double minDis = Double.MAX_VALUE;
-
+			ResourceInfo goldTarget = null;
+			ResourceInfo woodTarget = null;
 			if (townHall.gold < goldGoal) {
-				ResourceInfo goldTarget = null;
 				for (ResourceInfo r : goldmines) {
 					if (r.amount > 0) {
 						if (r.location.euclideanDistance(townHall.location) < minDis) {
@@ -243,13 +251,13 @@ public class GameState implements Comparable<GameState> {
 						}
 					}
 				}
-
-				GatherGold gatherG = new GatherGold(peasnt.id, goldTarget.id);
-				if (gatherG.preconditionsMet(this)) {
-					returnList.add(gatherG.apply(this));
-				} else {
-					Position closestG = findClosestTile(goldTarget.location,peasnt.location);
-					StripsMove move = new StripsMove(peasnt.id, peasnt.location, closestG);
+				GatherRes gatherR = new GatherRes(peasnt.id, goldTarget.id);
+				if (gatherR.preconditionsMet(this)) {
+					returnList.add(gatherR.apply(this));
+				} 
+				else {
+					Position closestW = findClosestTile(goldTarget.location, peasnt.location);
+					StripsMove move = new StripsMove(peasnt.id, peasnt.location, closestW);
 					if (move.preconditionsMet(this)) { // this should always true,right?
 						GameState afterMove = move.apply(this);
 						returnList.add(afterMove);
@@ -257,10 +265,9 @@ public class GameState implements Comparable<GameState> {
 				}
 			}
 			
-			
 			if (townHall.wood < woodGoal) {
 				minDis = Double.MAX_VALUE;
-				ResourceInfo woodTarget = null;
+				
 				for (ResourceInfo r : forests) {
 					if (r.amount > 0) {
 						if (r.location.euclideanDistance(townHall.location) < minDis) {
@@ -269,10 +276,9 @@ public class GameState implements Comparable<GameState> {
 						}
 					}
 				}
-
-				GatherWood gatherW = new GatherWood(peasnt.id, woodTarget.id);
-				if (gatherW.preconditionsMet(this)) {
-					returnList.add(gatherW.apply(this));
+				GatherRes gatherR = new GatherRes(peasnt.id, woodTarget.id);
+				if (gatherR.preconditionsMet(this)) {
+					returnList.add(gatherR.apply(this));
 				} 
 				else {
 					Position closestW = findClosestTile(woodTarget.location, peasnt.location);
@@ -283,6 +289,8 @@ public class GameState implements Comparable<GameState> {
 					}
 				}
 			}
+
+
 
 		}
     	 return returnList;

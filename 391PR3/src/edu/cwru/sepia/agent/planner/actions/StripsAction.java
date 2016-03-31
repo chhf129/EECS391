@@ -1,6 +1,8 @@
 package edu.cwru.sepia.agent.planner.actions;
 
 import edu.cwru.sepia.agent.planner.GameState;
+import edu.cwru.sepia.agent.planner.ResourceInfo;
+import edu.cwru.sepia.environment.model.state.ResourceNode;
 
 /**
  * A useful start of an interface representing strips actions. You may add new methods to this interface if needed, but
@@ -37,4 +39,18 @@ public interface StripsAction {
      * @return State resulting from successful action appliction.
      */
     public GameState apply(GameState state);
+    
+    public static ResourceNode.Type findResourceType(int id, GameState state){
+		for (ResourceInfo ri: state.goldmines){
+			if (ri.id == id){
+				return ri.type;
+			}
+		}
+		for (ResourceInfo ri: state.forests){
+			if (ri.id == id){
+				return ri.type;
+			}
+		}
+		return null;
+	}
 }
