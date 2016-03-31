@@ -13,7 +13,7 @@ public class GatherGold implements StripsAction {
 	public int unitID,goldID;
 	ResourceInfo gold=null;
 	Peasant peasant=null; 
-	GatherGold(int unitID,int goldID){
+	public GatherGold(int unitID,int goldID){
 		this.unitID=unitID;
 		this.goldID=goldID;
 	}

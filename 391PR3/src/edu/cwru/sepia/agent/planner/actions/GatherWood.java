@@ -13,7 +13,7 @@ public class GatherWood implements StripsAction {
 	public int unitID,woodID;
 	ResourceInfo wood=null;
 	Peasant peasant=null; 
-	GatherWood(int unitID,int woodID){
+	public GatherWood(int unitID,int woodID){
 		this.unitID=unitID;
 		this.woodID=woodID;
 	}

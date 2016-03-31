@@ -8,9 +8,9 @@ import edu.cwru.sepia.environment.model.state.ResourceNode;
 public class DepositWood implements StripsAction {
 
 	public int unitID;
-	Peasant peasant=null; 
+	Peasant peasant=null;
 	TownHallInfo townhall;
-	DepositWood(int unitID){
+	public DepositWood(int unitID){
 		this.unitID=unitID;
 	}
 	@Override
