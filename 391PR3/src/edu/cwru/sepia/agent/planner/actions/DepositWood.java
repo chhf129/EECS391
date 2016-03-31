@@ -9,7 +9,7 @@ public class DepositWood implements StripsAction {
 	public int unitID;
 	Peasant peasant=null; 
 	GameState.TownHallInfo townhall;
-	DepositWood(int unitID){
+	public DepositWood(int unitID){
 		this.unitID=unitID;
 	}
 	@Override

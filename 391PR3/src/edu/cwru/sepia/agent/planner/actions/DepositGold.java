@@ -9,7 +9,7 @@ public class DepositGold implements StripsAction {
 	public int unitID;
 	Peasant peasant=null; 
 	GameState.TownHallInfo townhall;
-	DepositGold(int unitID){
+	public DepositGold(int unitID){
 		this.unitID=unitID;
 	}
 	@Override
