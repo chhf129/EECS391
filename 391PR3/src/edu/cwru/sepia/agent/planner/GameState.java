@@ -104,6 +104,8 @@ public class GameState implements Comparable<GameState> {
     	for (Peasant p: gs.peasants){
     		peasants.add(new Peasant(p));
     	}
+    	parent=gs.parent;
+    	cause=gs.cause;
     	cost = gs.cost;
     	heuristic = gs.heuristic;
     }
@@ -200,7 +202,7 @@ public class GameState implements Comparable<GameState> {
     			if (move.preconditionsMet(afterMove)){//I can't figure when this if statement would be false
     				afterMove=move.apply(this);
     			}
-    			returnList.add(afterMove.generateChildren().get(0));
+    			returnList.add(afterMove);
     		}
     	}
     	
@@ -236,9 +238,7 @@ public class GameState implements Comparable<GameState> {
     			StripsMove move=new StripsMove(peasnt.id,peasnt.location,closestG);
     			if (move.preconditionsMet(this)){  //this should always true,right?
     				GameState afterMove=move.apply(this);
-    				if (gatherG.preconditionsMet(afterMove)){
-    					returnList.add(gatherG.apply(afterMove));
-    				}
+    				returnList.add(afterMove);
     			}
     		}
     		
@@ -252,9 +252,7 @@ public class GameState implements Comparable<GameState> {
     			StripsMove move=new StripsMove(peasnt.id,peasnt.location,closestW);
     			if (move.preconditionsMet(this)){  //this should always true,right?
     				GameState afterMove=move.apply(this);
-    				if (gatherW.preconditionsMet(afterMove)){
-    					returnList.add(gatherW.apply(afterMove));
-    				}
+    				returnList.add(afterMove);
     			}
     		}
     		

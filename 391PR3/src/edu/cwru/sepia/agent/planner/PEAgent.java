@@ -4,6 +4,8 @@ import edu.cwru.sepia.action.Action;
 import edu.cwru.sepia.agent.Agent;
 import edu.cwru.sepia.agent.planner.actions.*;
 import edu.cwru.sepia.environment.model.history.History;
+import edu.cwru.sepia.environment.model.state.ResourceNode;
+import edu.cwru.sepia.environment.model.state.ResourceNode.ResourceView;
 import edu.cwru.sepia.environment.model.state.ResourceType;
 import edu.cwru.sepia.environment.model.state.State;
 import edu.cwru.sepia.environment.model.state.Template;
@@ -101,10 +103,33 @@ public class PEAgent extends Agent {
      * @param action StripsAction
      * @return SEPIA representation of same action
      */
-    private Action createSepiaAction(StripsAction action) {
+    private Action createSepiaAction(StripsAction action, State.StateView stateView) {
     	Action returnAction=null;
-    	if (action instanceof DepositGold){
-    //		returnAction=Action.createPrimitiveDeposit(((DepositGold) action).unitID)
+    	Unit.UnitView townHall=stateView.getUnit(townhallId);
+    	Position townHallPos=new Position(townHall.getXPosition(),townHall.getYPosition());
+    	if (action instanceof BuildPeasant){
+    		
+    	}
+    	else{
+    		Unit.UnitView peasant=stateView.getUnit(((DepositGold) action).unitID);
+    		Position unitPos=new Position(peasant.getXPosition(),peasant.getYPosition());
+    		int unitID=((DepositGold) action).unitID;
+    		if (action instanceof DepositGold || action instanceof DepositWood){
+    			returnAction=Action.createPrimitiveDeposit(unitID,unitPos.getDirection(townHallPos));
+    		}
+    		else if (action instanceof GatherGold){
+    			ResourceView gold=stateView.getResourceNode(((GatherGold) action).goldID);
+    			Position resPos=new Position(gold.getXPosition(),gold.getYPosition());
+    			returnAction=Action.createPrimitiveGather(unitID, unitPos.getDirection(resPos));
+    		}
+    		else if (action instanceof GatherWood){
+    			ResourceView wood=stateView.getResourceNode(((GatherWood) action).woodID);
+    			Position resPos=new Position(wood.getXPosition(),wood.getYPosition());
+    			returnAction=Action.createPrimitiveGather(unitID, unitPos.getDirection(resPos));
+    		}
+    		else if (action instanceof StripsMove){
+    			
+    		}
     	}
         return null;
     }
