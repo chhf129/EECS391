@@ -237,7 +237,7 @@ public class GameState implements Comparable<GameState> {
     	private Position findClosestTile(Position a,Position b){
 			List<Position> adjPosition = a.getAdjacentPositions();
 			for (Position p:adjPosition){
-				if (!checkOpenPosition(p)){
+				if (!checkOpenPosition(p) || !p.inBounds(xBound, yBound)){
 					adjPosition.remove(p);
 				}
 			}

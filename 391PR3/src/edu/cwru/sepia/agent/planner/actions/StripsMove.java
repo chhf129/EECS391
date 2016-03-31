@@ -19,7 +19,7 @@ public class StripsMove implements StripsAction {
 	@Override
 	public boolean preconditionsMet(GameState state) {
 		//test that end is not out of bounds
-		if (end.inBounds(state.xBound, state.yBound)){
+		if (!end.inBounds(state.xBound, state.yBound)){
 			return false;
 		}
 		//test that the end isn't the town hall
@@ -42,7 +42,7 @@ public class StripsMove implements StripsAction {
 		for (Peasant p: state.peasants){
 			if (p.id == unitID){
 				if (start.equals(p.location)){
-					validPeasant = false;
+					validPeasant = true;
 				}
 			}
 			if (end.equals(p.location)){

@@ -102,6 +102,10 @@ public class PEAgent extends Agent {
      * @return SEPIA representation of same action
      */
     private Action createSepiaAction(StripsAction action) {
+    	Action returnAction=null;
+    	if (action instanceof DepositGold){
+    //		returnAction=Action.createPrimitiveDeposit(((DepositGold) action).unitID)
+    	}
         return null;
     }
 
