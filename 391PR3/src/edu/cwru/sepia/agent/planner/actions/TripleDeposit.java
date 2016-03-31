@@ -21,6 +21,7 @@ public class TripleDeposit implements StripsAction {
 		unit3 = u3;
 	}
 	
+	public TripleDeposit(){}
 	@Override
 	public boolean preconditionsMet(GameState state) {
 		deposit1 = generateDeposit(unit1, state);
@@ -36,7 +37,7 @@ public class TripleDeposit implements StripsAction {
 		newState.heuristic = newState.heuristic();
 		newState.parent = state;
 		newState.cause = this;
-		return null;
+		return newState;
 	}
 	
 	/**

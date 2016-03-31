@@ -21,6 +21,7 @@ public class DoubleGather implements StripsAction {
 		resource1 = r1;
 		resource2 = r2;
 	}
+	public DoubleGather(){};
 	
 	@Override
 	public boolean preconditionsMet(GameState state) {
@@ -36,7 +37,7 @@ public class DoubleGather implements StripsAction {
 		newState.heuristic = newState.heuristic();
 		newState.parent = state;
 		newState.cause = this;
-		return null;
+		return newState;
 	}
 	
 	/**

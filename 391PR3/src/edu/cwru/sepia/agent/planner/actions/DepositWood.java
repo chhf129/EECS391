@@ -13,6 +13,10 @@ public class DepositWood implements StripsAction {
 	public DepositWood(int unitID){
 		this.unitID=unitID;
 	}
+	public DepositWood(DepositWood d){
+		unitID=d.unitID;
+	}
+	
 	@Override
 	public boolean preconditionsMet(GameState state) {
 		townhall=state.townHall;

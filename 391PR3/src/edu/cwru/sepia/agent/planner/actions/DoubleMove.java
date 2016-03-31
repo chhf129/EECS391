@@ -24,6 +24,9 @@ public class DoubleMove implements StripsAction{
 		move2 = new StripsMove(id2, s2, e2);
 	}
 	
+	public DoubleMove(){}
+	
+	
 	@Override
 	public boolean preconditionsMet(GameState state) {
 		return move1.preconditionsMet(state) && move2.preconditionsMet(state);
@@ -40,7 +43,7 @@ public class DoubleMove implements StripsAction{
 		newState.parent = state;
 		newState.cause = this;
 		
-		return null;
+		return newState;
 	}
 
 	public String toString(){

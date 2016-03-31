@@ -18,6 +18,11 @@ public class GatherGold implements StripsAction {
 		this.goldID=goldID;
 	}
 	
+	public GatherGold(GatherGold g){
+		unitID=g.unitID;
+		goldID=g.goldID;
+	}
+	
 	@Override
 	public boolean preconditionsMet(GameState state) {
 		

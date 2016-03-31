@@ -13,6 +13,9 @@ public class DepositGold implements StripsAction {
 	public DepositGold(int unitID){
 		this.unitID=unitID;
 	}
+	public DepositGold(DepositGold d){
+		unitID=d.unitID;
+	}
 	@Override
 	public boolean preconditionsMet(GameState state) {
 		townhall=state.townHall;

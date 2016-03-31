@@ -1,7 +1,9 @@
 package edu.cwru.sepia.agent.planner;
 
+import edu.cwru.sepia.action.Action;
 import edu.cwru.sepia.agent.planner.actions.DepositGold;
 import edu.cwru.sepia.agent.planner.actions.DepositWood;
+import edu.cwru.sepia.agent.planner.actions.DoubleDeposit;
 import edu.cwru.sepia.agent.planner.actions.GatherGold;
 import edu.cwru.sepia.agent.planner.actions.GatherWood;
 import edu.cwru.sepia.agent.planner.actions.StripsAction;
@@ -10,6 +12,7 @@ import edu.cwru.sepia.environment.model.state.ResourceNode;
 import edu.cwru.sepia.environment.model.state.ResourceNode.ResourceView;
 import edu.cwru.sepia.environment.model.state.State;
 import edu.cwru.sepia.environment.model.state.Unit.UnitView;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -180,7 +183,30 @@ public class GameState implements Comparable<GameState> {
      * @return A list of the possible successor states and their associated actions
      */
     public List<GameState> generateChildren() {
-    	Peasant peasnt=peasants.get(0);
+    	List<GameState> returnList=new LinkedList<>();
+    	List<GameState> returnList1=new LinkedList<>();
+    	returnList=getAllActions(peasants.get(0));
+    	if (peasants.size()==1){
+    		return returnList;
+    	}
+    	else if (peasants.size()==2){
+    		for(GameState gameState:returnList){
+    			returnList1.addAll(gameState.generateChildren());
+    		}
+    		return returnList1;
+    	}
+    	else if (peasants.size()==3){
+    		List<GameState> returnList2=new LinkedList<>();
+    		for(GameState gameState:returnList1){
+    			returnList2.addAll(gameState.generateChildren());
+    		}
+    		return returnList2;
+    	}
+        return returnList;
+    }
+    
+    //TODO: put move action together into deposit or gather
+    private List<GameState> getAllActions(Peasant peasnt){
       	List<GameState> returnList = new LinkedList<>();
     	if (peasnt.isCarrying){
     		DepositGold depositG=new DepositGold(peasnt.id);
@@ -259,8 +285,28 @@ public class GameState implements Comparable<GameState> {
 			}
 
 		}
-        return returnList;
+    	 return returnList;
     }
+    
+    private void combineState(){
+    	StripsAction action=parent.cause;
+    	if (action instanceof DepositGold){
+    		if (cause instanceof DepositGold){
+    			DoubleDeposit temp=new DoubleDeposit();
+    			temp.deposit1=new DepositGold((DepositGold)action);
+    		}
+		}
+		else if (action instanceof DepositWood){
+		}
+		else if (action instanceof GatherGold){
+		}
+		else if (action instanceof GatherWood){
+		}
+		else if (action instanceof StripsMove){
+		}
+    }
+    
+    
     	private Position findClosestTile(Position a,Position b){
 			List<Position> adjPosition = a.getAdjacentPositions();
 			for (Position p:adjPosition){

@@ -28,6 +28,8 @@ public class TripleMove implements StripsAction {
 		move3 = new StripsMove(unit3, start3, end3);
 	}
 	
+	public TripleMove(){}
+	
 	@Override
 	public boolean preconditionsMet(GameState state) {
 		return move1.preconditionsMet(state) && move2.preconditionsMet(state) && move3.preconditionsMet(state);

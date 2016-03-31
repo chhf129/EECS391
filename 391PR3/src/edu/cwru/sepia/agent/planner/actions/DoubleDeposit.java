@@ -19,6 +19,7 @@ public class DoubleDeposit implements StripsAction {
 		unit1 = u1;
 		unit2 = u2;
 	}
+	public DoubleDeposit(){};
 	
 	@Override
 	public boolean preconditionsMet(GameState state) {
@@ -34,7 +35,7 @@ public class DoubleDeposit implements StripsAction {
 		newState.heuristic = newState.heuristic();
 		newState.parent = state;
 		newState.cause = this;
-		return null;
+		return newState;
 	}
 	
 	/**

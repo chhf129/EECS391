@@ -15,6 +15,11 @@ public class StripsMove implements StripsAction {
 		end = e;
 		unitID = id;
 	}
+	public StripsMove (StripsMove s){
+		start = s.start;
+		end = s.end;
+		unitID = s.unitID;
+	}
 	
 	@Override
 	public boolean preconditionsMet(GameState state) {

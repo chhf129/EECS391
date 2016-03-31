@@ -17,6 +17,10 @@ public class GatherWood implements StripsAction {
 		this.unitID=unitID;
 		this.woodID=woodID;
 	}
+	public GatherWood(GatherWood g){
+		unitID=g.unitID;
+		woodID=g.woodID;
+	}
 	
 	@Override
 	public boolean preconditionsMet(GameState state) {

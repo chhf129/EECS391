@@ -24,6 +24,8 @@ public class TripleGather implements StripsAction {
 		resource3 = r3;
 	}
 	
+	public TripleGather(){}
+	
 	@Override
 	public boolean preconditionsMet(GameState state) {
 		gather1 = generateGather(unit1, resource1, state);
@@ -39,7 +41,7 @@ public class TripleGather implements StripsAction {
 		newState.heuristic = newState.heuristic();
 		newState.parent = state;
 		newState.cause = this;
-		return null;
+		return newState;
 	}
 	
 	/**
