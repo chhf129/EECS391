@@ -1,6 +1,8 @@
 package edu.cwru.sepia.agent.planner;
 
 import edu.cwru.sepia.action.Action;
+import edu.cwru.sepia.action.ActionFeedback;
+import edu.cwru.sepia.action.ActionResult;
 import edu.cwru.sepia.agent.Agent;
 import edu.cwru.sepia.agent.planner.actions.*;
 import edu.cwru.sepia.environment.model.history.History;
@@ -14,6 +16,7 @@ import edu.cwru.sepia.environment.model.state.Unit;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -94,8 +97,41 @@ public class PEAgent extends Agent {
      */
     @Override
     public Map<Integer, Action> middleStep(State.StateView stateView, History.HistoryView historyView) {
-        // TODO: Implement me!
-        return null;
+        //TODO parallelize actions for different units
+    	Map<Integer,Action> actions=new HashMap<>();
+    	if (plan.isEmpty()){
+    		return actions;
+    	}
+        StripsAction action=plan.pop();
+    	if (action instanceof BuildPeasant){
+    		actions.put(townhallId, createSepiaAction(action,stateView));
+    	}
+    	else{
+    		int unitID=((DepositGold) action).unitID;
+    		Unit.UnitView unit=stateView.getUnit(unitID);
+    		
+    		if (stateView.getTurnNumber() != 0) {
+
+    			  Map<Integer, ActionResult> actionResults = historyView.getCommandFeedback(unitID, stateView.getTurnNumber() - 1);
+    			  
+    			  for (ActionResult result : actionResults.values()) {
+    				  if (actionResults.size()!=1){
+    					  System.err.println("more than 1 action assigned to unit");
+    				  }
+    			    System.out.println(result.toString());
+
+    			  }
+    			  
+    			  ActionResult result=actionResults.get(unitID);
+    			  if (result.getFeedback().equals(ActionFeedback.COMPLETED)){
+    				  actions.put(unitID, createSepiaAction(action,stateView));
+    			  }
+    			}
+    		
+    	}
+   //     List<Unit.UnitView> temp=stateView.getAllUnits();
+   //     actions.put(temp.get(1).getID(), Action.createCompoundMove(temp.get(1).getID(),21,15));
+        return actions;
     }
 
     /**
@@ -108,7 +144,7 @@ public class PEAgent extends Agent {
     	Unit.UnitView townHall=stateView.getUnit(townhallId);
     	Position townHallPos=new Position(townHall.getXPosition(),townHall.getYPosition());
     	if (action instanceof BuildPeasant){
-    		
+    		returnAction=Action.createPrimitiveProduction(townhallId,peasantTemplateId);
     	}
     	else{
     		Unit.UnitView peasant=stateView.getUnit(((DepositGold) action).unitID);
@@ -128,10 +164,11 @@ public class PEAgent extends Agent {
     			returnAction=Action.createPrimitiveGather(unitID, unitPos.getDirection(resPos));
     		}
     		else if (action instanceof StripsMove){
-    			
+    			Position end=((StripsMove) action).end;
+    			returnAction=Action.createCompoundMove(unitID, end.x, end.y);
     		}
     	}
-        return null;
+        return returnAction;
     }
 
     @Override

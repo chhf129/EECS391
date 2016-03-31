@@ -7,7 +7,7 @@ import edu.cwru.sepia.agent.planner.Position;
 import edu.cwru.sepia.agent.planner.ResourceInfo;
 
 public class StripsMove implements StripsAction {
-	private Position start, end;
+	public Position start, end;
 	private int unitID;
 	
 	public StripsMove (int id, Position s, Position e){
