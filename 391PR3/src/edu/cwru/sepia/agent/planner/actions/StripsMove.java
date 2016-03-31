@@ -2,9 +2,9 @@ package edu.cwru.sepia.agent.planner.actions;
 
 import edu.cwru.sepia.agent.planner.AstarAgent;
 import edu.cwru.sepia.agent.planner.GameState;
-import edu.cwru.sepia.agent.planner.GameState.Peasant;
-import edu.cwru.sepia.agent.planner.GameState.ResourceInfo;
+import edu.cwru.sepia.agent.planner.Peasant;
 import edu.cwru.sepia.agent.planner.Position;
+import edu.cwru.sepia.agent.planner.ResourceInfo;
 
 public class StripsMove implements StripsAction {
 	private Position start, end;

@@ -1,14 +1,15 @@
 package edu.cwru.sepia.agent.planner.actions;
 
 import edu.cwru.sepia.agent.planner.GameState;
-import edu.cwru.sepia.agent.planner.GameState.Peasant;
+import edu.cwru.sepia.agent.planner.Peasant;
+import edu.cwru.sepia.agent.planner.TownHallInfo;
 import edu.cwru.sepia.environment.model.state.ResourceNode;
 
 public class DepositGold implements StripsAction {
 
 	public int unitID;
-	Peasant peasant=null; 
-	GameState.TownHallInfo townhall;
+	Peasant peasant=null;
+	TownHallInfo townhall;
 	public DepositGold(int unitID){
 		this.unitID=unitID;
 	}

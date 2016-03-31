@@ -35,69 +35,6 @@ import java.util.List;
  */
 public class GameState implements Comparable<GameState> {
 	
-	//tracks town hall information such as gold and wood
-	public class TownHallInfo{
-		public int wood;
-		public int gold;
-		public int food;
-		public Position location;
-		
-		public TownHallInfo(UnitView uv){
-			wood = 0;
-			gold = 0;
-			food = 3;
-			location = new Position(uv.getXPosition(), uv.getYPosition());
-		}
-		public TownHallInfo(TownHallInfo thi){
-			wood = thi.wood;
-			gold = thi.gold;
-			food = thi.food;
-			location = new Position(thi.location.x, thi.location.y);
-		}
-	}
-	
-	public class ResourceInfo{
-		public ResourceNode.Type type;
-		public int amount,id;
-		public Position location;
-		
-		public ResourceInfo(ResourceView rv){
-			type = rv.getType();
-			amount = rv.getAmountRemaining();
-			location = new Position(rv.getXPosition(), rv.getYPosition());
-			id=rv.getID();
-		}
-		public ResourceInfo(ResourceInfo ri){
-			type = ri.type;
-			amount = ri.amount;
-			location = new Position(ri.location.x, ri.location.y);
-			id=ri.id;
-		}
-	}
-	
-	public class Peasant{
-		public int id;
-		public boolean isCarrying;
-		public ResourceNode.Type resourceType;
-		public int resourceAmount;
-		public Position location;
-		
-		public Peasant(UnitView uv){
-			id = uv.getID();
-			isCarrying = false;
-			resourceType = null;
-			resourceAmount = 0;
-			location = new Position(uv.getXPosition(), uv.getYPosition());
-		}
-		public Peasant(Peasant p){
-			id = p.id;
-			isCarrying = p.isCarrying;
-			resourceType = p.resourceType;
-			resourceAmount = p.resourceAmount;
-			location = new Position(p.location.x, p.location.y);
-		}
-	}
-
 	public int goldGoal, woodGoal;
 	public int xBound, yBound;
 	public double cost, heuristic;

@@ -4,9 +4,6 @@ package edu.cwru.sepia.agent.planner;
 
 import edu.cwru.sepia.action.Action;
 import edu.cwru.sepia.agent.Agent;
-import edu.cwru.sepia.agent.planner.GameState.Peasant;
-import edu.cwru.sepia.agent.planner.GameState.ResourceInfo;
-import edu.cwru.sepia.agent.planner.GameState.TownHallInfo;
 import edu.cwru.sepia.environment.model.history.History;
 import edu.cwru.sepia.environment.model.state.ResourceNode;
 import edu.cwru.sepia.environment.model.state.State;
