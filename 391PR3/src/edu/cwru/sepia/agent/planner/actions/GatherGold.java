@@ -54,4 +54,8 @@ public class GatherGold implements StripsAction {
 		return newState;
 	}
 	
+	public String toString(){
+		return "GatherGold: peasant " + unitID + " from mine " + goldID;
+	}
+	
 }

@@ -41,4 +41,7 @@ public class DepositGold implements StripsAction {
 		return newState;
 	}
 
+	public String toString(){
+		return "DepositGold: peasant " + unitID;
+	}
 }

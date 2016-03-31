@@ -5,6 +5,9 @@ import edu.cwru.sepia.agent.planner.Peasant;
 import edu.cwru.sepia.agent.planner.Position;
 
 public class BuildPeasant implements StripsAction {
+	
+	private Position spawn;
+	private int newID;
 
 	@Override
 	public boolean preconditionsMet(GameState state) {
@@ -13,11 +16,12 @@ public class BuildPeasant implements StripsAction {
 
 	@Override
 	public GameState apply(GameState state) {
-		Position spawn = findPeasantSpawn(state);
+		spawn = findPeasantSpawn(state);
 		GameState newState = new GameState(state);
+		newID = newState.peasants.get(newState.peasants.size()-1).id + 1;
 		newState.townHall.gold -= 400;
 		newState.townHall.food--;
-		Peasant newPeasant = new Peasant(newState.peasants.get(newState.peasants.size()-1).id + 1, spawn);
+		Peasant newPeasant = new Peasant(newID, spawn);
 		newState.peasants.add(newPeasant);
 		newState.cost++;
 		newState.heuristic = state.heuristic();
@@ -32,6 +36,10 @@ public class BuildPeasant implements StripsAction {
 			}
 		}
 		return null;
+	}
+	
+	public String toString(){
+		return "BuildPeasant: peasant " + newID + " at (" + spawn.x + ", " + spawn.y + ")";
 	}
 
 }

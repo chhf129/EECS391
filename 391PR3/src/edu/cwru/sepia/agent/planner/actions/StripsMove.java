@@ -70,5 +70,11 @@ public class StripsMove implements StripsAction {
 		newState.cause = this;
 		return newState;
 	}
+	
+	public String toString(){
+		return "Move: peasant " + unitID + " from (" + start.x + ", " + start.y + ") to (" + end.x + ", " + end.y + ")";
+		
+		
+	}
 
 }

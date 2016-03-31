@@ -9,10 +9,7 @@ import edu.cwru.sepia.agent.planner.actions.StripsMove;
 import edu.cwru.sepia.environment.model.state.ResourceNode;
 import edu.cwru.sepia.environment.model.state.ResourceNode.ResourceView;
 import edu.cwru.sepia.environment.model.state.State;
-import edu.cwru.sepia.environment.model.state.Unit;
 import edu.cwru.sepia.environment.model.state.Unit.UnitView;
-import edu.cwru.sepia.environment.model.state.UnitTemplate;
-
 import java.util.LinkedList;
 import java.util.List;
 

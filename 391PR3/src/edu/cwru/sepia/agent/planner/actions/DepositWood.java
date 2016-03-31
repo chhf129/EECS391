@@ -41,4 +41,7 @@ public class DepositWood implements StripsAction {
 		return newState;
 	}
 
+	public String toString(){
+		return "DepositWood: peasant " + unitID;
+	}
 }

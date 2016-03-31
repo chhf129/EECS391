@@ -54,4 +54,7 @@ public class GatherWood implements StripsAction {
 		return newState;
 	}
 	
+	public String toString(){
+		return "GatherWood: peasant " + unitID + " from forest " + woodID;
+	}
 }
