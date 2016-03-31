@@ -166,6 +166,31 @@ public class GameState implements Comparable<GameState> {
     	cost = gs.cost;
     	heuristic = gs.heuristic;
     }
+    
+    public boolean checkOpenPosition(Position p){
+    	boolean empty = p.inBounds(xBound, yBound) && !p.equals(townHall.location);
+    	if (empty){
+    		for(ResourceInfo ri: goldmines){
+    			if (p.equals(ri.location)){
+    				empty = false;
+    				break;
+    			}
+    		}
+    		for(ResourceInfo ri: forests){
+    			if (p.equals(ri.location)){
+    				empty = false;
+    				break;
+    			}
+    		}
+    		for(Peasant peas: peasants){
+    			if (p.equals(peas.location)){
+    				empty = false;
+    				break;
+    			}
+    		}
+    	}
+    	return empty;
+    }
 
     /**
      * Unlike in the first A* assignment there are many possible goal states. As long as the wood and gold requirements
