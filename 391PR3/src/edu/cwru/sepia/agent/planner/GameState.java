@@ -268,9 +268,9 @@ public class GameState implements Comparable<GameState> {
         double h = goldGoal - townHall.gold + woodGoal - townHall.wood;
         for (Peasant p: peasants){
         	if (p.isCarrying && p.resourceType == ResourceNode.Type.GOLD_MINE){
-        		h += 25;
+        		h -= 50;
         	} else if (p.isCarrying && p.resourceType == ResourceNode.Type.TREE){
-        		h += 50;
+        		h -= 25;
         	}
         }
         return h/peasants.size();

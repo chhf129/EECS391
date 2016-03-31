@@ -102,37 +102,46 @@ public class PlannerAgent extends Agent {
     	
     	//while there are nodes to explore, pop next location and explore it
     	while(!openList.isEmpty()){
+    		System.out.println("iteration");
     		GameState node = openList.poll();
-    		if (this.exploreNode(node, openList, closedList)){
+    		GameState finish = this.exploreNode(node, openList, closedList);
+    		if (finish != null){
     			sequence = createSequence (node, closedList);
     			break;
     		}
     	}
     	if(sequence.isEmpty()){
+    		System.out.println("null sequence");
     		System.exit(0);
     	}
     	return sequence;
     }
     
-    private boolean exploreNode(GameState node, PriorityQueue<GameState> openList, LinkedList<GameState> closedList){
+    private GameState exploreNode(GameState node, PriorityQueue<GameState> openList, LinkedList<GameState> closedList){
+    	System.out.println("exploring node");
     	for (GameState child: node.generateChildren()){
     		if(child.isGoal()){
-    			return true;
+    			System.out.println("found goal");
+    			return child;
     		} else {
-    			this.examineNode(node, openList, closedList);
+    			this.examineNode(child, openList, closedList);
     		}
     	}
-    	openList.remove(node);
+    	//openList.remove(node);
     	closedList.addFirst(node);
-    	return false;
+    	return null;
     }
     
     private void examineNode(GameState node, PriorityQueue<GameState> openList, LinkedList<GameState> closedList){
+    	System.out.println("examining child");
     	boolean valid = true;
     	//check in closed list
     	for (GameState gs: closedList){
     		valid = valid && (node.equals(gs));
     	}
+		if (!valid){
+			System.out.println("found child in closed list");
+		}
     	//check in open list
     	if (valid){
     		for (GameState gs: openList){
@@ -141,9 +150,14 @@ public class PlannerAgent extends Agent {
     			}
     		}
     	}
+		if (!valid){
+			System.out.println("found child in open list");
+		}
     	//if not in either list, add location to open list
     	if(valid){
+    		System.out.println("adding child");
     		openList.add(node);
+    		System.out.println(openList.size());
     	}
     }
     
