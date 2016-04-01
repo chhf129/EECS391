@@ -120,7 +120,7 @@ public class PlannerAgent extends Agent {
     private GameState exploreNode(GameState node, PriorityQueue<GameState> openList, LinkedList<GameState> closedList){
     	System.out.println("exploring node");
     	node.printStatus();
-    	for (GameState child: node.generateChildren()){
+    	for (GameState child: node.generateChildren(0)){
     		if(child.isGoal()){
     			System.out.println("found goal");
     			return child;

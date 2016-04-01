@@ -10,23 +10,26 @@ import edu.cwru.sepia.environment.model.state.ResourceNode;
  * performed are determined by the resources held by the peasants indicated by
  * the IDs passed in
  */
-public class TripleDeposit implements StripsAction {
+public class TripleDeposit extends DoubleDeposit implements StripsAction  {
 
 	public int unit1, unit2, unit3;
-	public StripsAction deposit1, deposit2, deposit3;
+	public DepositRes deposit1, deposit2, deposit3;
 	
 	public TripleDeposit(int u1, int u2, int u3){
-		unit1 = u1;
-		unit2 = u2;
+		super(u1,u2);
 		unit3 = u3;
 	}
 	
-	public TripleDeposit(){}
+	public TripleDeposit(DepositRes d1, DepositRes d2,DepositRes d3){
+		super(d1,d2);
+		unit3=d3.unitID;
+		deposit3=new DepositRes(d3);
+	}
 	@Override
 	public boolean preconditionsMet(GameState state) {
-		deposit1 = generateDeposit(unit1, state);
-		deposit2 = generateDeposit(unit2, state);
-		deposit3 = generateDeposit(unit3, state);
+	//	deposit1 = generateDeposit(unit1, state);
+	//	deposit2 = generateDeposit(unit2, state);
+	//	deposit3 = generateDeposit(unit3, state);
 		return deposit1.preconditionsMet(state) && deposit2.preconditionsMet(state) && deposit3.preconditionsMet(state);
 	}
 

@@ -13,18 +13,23 @@ import edu.cwru.sepia.environment.model.state.ResourceNode;
 public class DoubleDeposit implements StripsAction {
 
 	public int unit1, unit2;
-	public StripsAction deposit1, deposit2;
+	public DepositRes deposit1, deposit2;
 	
 	public DoubleDeposit(int u1, int u2){
 		unit1 = u1;
 		unit2 = u2;
 	}
-	public DoubleDeposit(){};
+	public DoubleDeposit(DepositRes d1,DepositRes d2){
+		unit1=d1.unitID;
+		unit2=d2.unitID;
+		deposit1=new DepositRes(d1);
+		deposit2=new DepositRes(d2);
+	};
 	
 	@Override
 	public boolean preconditionsMet(GameState state) {
-		deposit1 = generateDeposit(unit1, state);
-		deposit2 = generateDeposit(unit2, state);
+	//	deposit1 = generateDeposit(unit1, state);
+	//	deposit2 = generateDeposit(unit2, state);
 		return deposit1.preconditionsMet(state) && deposit2.preconditionsMet(state);
 	}
 

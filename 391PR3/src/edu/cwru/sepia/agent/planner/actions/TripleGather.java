@@ -10,12 +10,13 @@ import edu.cwru.sepia.environment.model.state.ResourceNode;
  * performed are determined by the resources indicated by the id's passed in.
  *
  */
-public class TripleGather implements StripsAction {
+public class TripleGather extends DoubleGather implements StripsAction {
 
 	public int unit1, unit2, unit3, resource1, resource2, resource3;
-	public StripsAction gather1, gather2, gather3;
+	public GatherRes gather1, gather2, gather3;
 	
 	public TripleGather(int u1, int u2, int u3, int r1, int r2, int r3){
+		super(u1,u2,r1,r2);
 		unit1 = u1;
 		unit2 = u2;
 		unit3 = u3;
@@ -24,13 +25,18 @@ public class TripleGather implements StripsAction {
 		resource3 = r3;
 	}
 	
-	public TripleGather(){}
+	public TripleGather(GatherRes g1, GatherRes g2,GatherRes g3){
+		super(g1,g2);
+		unit3=g3.unitID;
+		resource3=g3.resID;
+		gather3=new GatherRes(g3);
+	}
 	
 	@Override
 	public boolean preconditionsMet(GameState state) {
-		gather1 = generateGather(unit1, resource1, state);
-		gather2 = generateGather(unit2, resource2, state);
-		gather3 = generateGather(unit3, resource3, state);
+	//	gather1 = generateGather(unit1, resource1, state);
+	//	gather2 = generateGather(unit2, resource2, state);
+	//	gather3 = generateGather(unit3, resource3, state);
 		return gather1.preconditionsMet(state) && gather2.preconditionsMet(state) && gather3.preconditionsMet(state);
 	}
 

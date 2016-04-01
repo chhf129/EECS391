@@ -14,7 +14,7 @@ public class DepositRes implements StripsAction {
 	public DepositRes(int unitID){
 		this.unitID=unitID;
 	}
-	public DepositRes(DepositGold d){
+	public DepositRes(DepositRes d){
 		unitID=d.unitID;
 	}
 	@Override

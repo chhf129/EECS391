@@ -24,7 +24,16 @@ public class DoubleMove implements StripsAction{
 		move2 = new StripsMove(id2, s2, e2);
 	}
 	
-	public DoubleMove(){}
+	public DoubleMove(StripsMove m1,StripsMove m2){
+		unit1=m1.unitID;
+		unit2=m2.unitID;
+		start1=m1.start;
+		start2=m2.start;
+		end1=m1.end;
+		end2=m2.end;
+		move1=new StripsMove(m1);
+		move2=new StripsMove(m2);
+	}
 	
 	
 	@Override

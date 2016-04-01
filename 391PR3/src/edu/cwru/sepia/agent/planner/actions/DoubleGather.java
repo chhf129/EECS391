@@ -13,7 +13,7 @@ import edu.cwru.sepia.environment.model.state.ResourceNode;
 public class DoubleGather implements StripsAction {
 
 	public int unit1, unit2, resource1, resource2;
-	public StripsAction gather1, gather2;
+	public GatherRes gather1, gather2;
 	
 	public DoubleGather(int u1, int u2, int r1, int r2){
 		unit1 = u1;
@@ -21,12 +21,19 @@ public class DoubleGather implements StripsAction {
 		resource1 = r1;
 		resource2 = r2;
 	}
-	public DoubleGather(){};
+	public DoubleGather(GatherRes g1, GatherRes g2){
+		unit1=g1.unitID;
+		resource1=g1.resID;
+		unit2=g2.unitID;
+		resource2=g2.resID;
+		gather1=new GatherRes(g1);
+		gather2=new GatherRes(g2);
+	};
 	
 	@Override
 	public boolean preconditionsMet(GameState state) {
-		gather1 = generateGather(unit1, resource1, state);
-		gather2 = generateGather(unit2, resource2, state);
+	//	gather1 = generateGather(unit1, resource1, state);
+	//	gather2 = generateGather(unit2, resource2, state);
 		return gather1.preconditionsMet(state) && gather2.preconditionsMet(state);
 	}
 

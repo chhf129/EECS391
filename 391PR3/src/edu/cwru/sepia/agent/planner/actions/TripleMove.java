@@ -7,13 +7,14 @@ import edu.cwru.sepia.agent.planner.Position;
  * Implements three moves in parallel by performing them sequentially
  * but only increasing the cost by the longest move.
  */
-public class TripleMove implements StripsAction {
+public class TripleMove extends DoubleMove implements StripsAction {
 	public int unit1, unit2, unit3;
 	public Position start1, start2, start3, end1, end2, end3;
 	public StripsMove move1, move2, move3;
 	
 	
 	public TripleMove(int id1, int id2, int id3, Position s1, Position s2, Position s3, Position e1, Position e2, Position e3){
+		super(id1,id2,s1,s2,e1,e2);
 		unit1 = id1;
 		unit2 = id2;
 		unit3 = id3;
@@ -28,7 +29,13 @@ public class TripleMove implements StripsAction {
 		move3 = new StripsMove(unit3, start3, end3);
 	}
 	
-	public TripleMove(){}
+	public TripleMove(StripsMove m1,StripsMove m2,StripsMove m3){
+		super(m1,m2);
+		unit3=m3.unitID;
+		start3=m3.start;
+		end3=m3.end;
+		move3=new StripsMove(m3);
+	}
 	
 	@Override
 	public boolean preconditionsMet(GameState state) {
