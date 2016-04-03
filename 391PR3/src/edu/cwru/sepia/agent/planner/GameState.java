@@ -191,16 +191,19 @@ public class GameState implements Comparable<GameState> {
      *
      * @return A list of the possible successor states and their associated actions
      */
-    public List<GameState> generateChildren(int whichPeasant) {
+    public List<GameState> generateChildren() {
     	List<GameState> returnList=new LinkedList<>();
     	List<GameState> returnList1=new LinkedList<>();
-    	returnList=getAllChildren(peasants.get(whichPeasant));
+    	returnList=getAllChildren(peasants.get(0));
     	if (peasants.size()==1){
+        	for(GameState it:returnList){
+        		System.out.println("children\n"+it.cause.toString());
+        	}
     		return returnList;
     	}
     	else {
     		for(GameState gameState:returnList){
-    			returnList1.addAll(gameState.generateChildren(1));
+    			returnList1.addAll(gameState.getAllChildren(peasants.get(1)));
     		}
     		for(GameState gameState:returnList1){
     			gameState.combineState();
@@ -209,14 +212,20 @@ public class GameState implements Comparable<GameState> {
     	if (peasants.size()==3){
     		List<GameState> returnList2=new LinkedList<>();
     		for(GameState gameState:returnList1){
-    			returnList2.addAll(gameState.generateChildren(2));
+    			returnList2.addAll(gameState.getAllChildren(peasants.get(2)));
     		}
     		for(GameState gameState:returnList1){
     			gameState.combineState();
     		}
+        	for(GameState it:returnList){
+        		System.out.println("children\n"+it.cause.toString());
+        	}
     		return returnList2;
     	}
     	else{
+        	for(GameState it:returnList){
+        		System.out.println("children\n"+it.cause.toString());
+        	}
     		return returnList1;
     	}
     }
@@ -242,7 +251,7 @@ public class GameState implements Comparable<GameState> {
     		else{
     			Position minPos=findClosestTile(townHall.location,peasnt.location);
     			GameState afterMove=new GameState(this);
-    			StripsMove move=new StripsMove(peasnt.id,peasnt.location,minPos);
+    			StripsMove move=new StripsMove(peasnt.id,peasnt.location,minPos,0);
     			if (move.preconditionsMet(afterMove)){//I can't figure when this if statement would be false
     				afterMove=move.apply(this);
     			}
@@ -270,8 +279,8 @@ public class GameState implements Comparable<GameState> {
 					returnList.add(gatherR.apply(this));
 				} 
 				else {
-					Position closestW = findClosestTile(goldTarget.location, peasnt.location);
-					StripsMove move = new StripsMove(peasnt.id, peasnt.location, closestW);
+					Position closestG = findClosestTile(goldTarget.location, peasnt.location);
+					StripsMove move = new StripsMove(peasnt.id, peasnt.location, closestG,-10);
 					if (move.preconditionsMet(this)) { // this should always true,right?
 						GameState afterMove = move.apply(this);
 						returnList.add(afterMove);
@@ -296,7 +305,7 @@ public class GameState implements Comparable<GameState> {
 				} 
 				else {
 					Position closestW = findClosestTile(woodTarget.location, peasnt.location);
-					StripsMove move = new StripsMove(peasnt.id, peasnt.location, closestW);
+					StripsMove move = new StripsMove(peasnt.id, peasnt.location, closestW,10);
 					if (move.preconditionsMet(this)) { // this should always true,right?
 						GameState afterMove = move.apply(this);
 						returnList.add(afterMove);
@@ -309,6 +318,7 @@ public class GameState implements Comparable<GameState> {
     		GameState temp=build.apply(this);
     		returnList.add(temp);
     	}
+    	
     	 return returnList;
     }
     
@@ -339,8 +349,34 @@ public class GameState implements Comparable<GameState> {
     			result=new TripleMove(((DoubleMove)parentCause).move1,((DoubleMove)parentCause).move2,(StripsMove)cause);
     		}
 		}
-    	cause=result;
-    	parent=parent.parent;
+    	if (result!=null){
+    		cause=result;
+    		parent=parent.parent;
+    	}
+    	else{
+    		GameState gs=parent;
+        	playerID = gs.playerID;
+        	goldGoal = gs.goldGoal;
+        	woodGoal = gs.woodGoal;
+        	buildPeasants = gs.buildPeasants;
+        	townHall = new TownHallInfo(gs.townHall);
+        	goldmines = new LinkedList<ResourceInfo>();
+        	for (ResourceInfo ri: gs.goldmines){
+        		goldmines.add(new ResourceInfo(ri));
+        	}
+        	forests = new LinkedList<ResourceInfo>();
+        	for (ResourceInfo ri: gs.forests){
+        		forests.add(new ResourceInfo(ri));
+        	}
+        	peasants = new LinkedList<Peasant>();
+        	for (Peasant p: gs.peasants){
+        		peasants.add(new Peasant(p));
+        	}
+        	parent=gs.parent;
+        	cause=gs.cause;
+        	cost = gs.cost;
+        	heuristic = gs.heuristic;
+    	}
     }
     
     

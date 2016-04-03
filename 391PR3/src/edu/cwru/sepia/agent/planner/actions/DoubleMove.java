@@ -20,8 +20,8 @@ public class DoubleMove implements StripsAction{
 		start2 = s2;
 		end1 = e1;
 		end2 = e2;
-		move1 = new StripsMove(id1, s1, e1);
-		move2 = new StripsMove(id2, s2, e2);
+		move1 = new StripsMove(id1, s1, e1,0);
+		move2 = new StripsMove(id2, s2, e2,0);
 	}
 	
 	public DoubleMove(StripsMove m1,StripsMove m2){

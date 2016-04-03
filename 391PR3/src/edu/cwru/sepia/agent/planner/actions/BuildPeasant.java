@@ -11,7 +11,7 @@ public class BuildPeasant implements StripsAction {
 
 	@Override
 	public boolean preconditionsMet(GameState state) {
-		return state.townHall.food > 0 && state.townHall.gold >= 400 && findPeasantSpawn(state) != null;
+		return state.buildPeasants && state.townHall.food > 1 && state.townHall.gold >= 400 && findPeasantSpawn(state) != null;
 	}
 
 	@Override
@@ -25,6 +25,8 @@ public class BuildPeasant implements StripsAction {
 		newState.peasants.add(newPeasant);
 		newState.cost++;
 		newState.heuristic = state.heuristic();
+		newState.parent=state;
+		newState.cause=this;
 		return newState;
 	}
 	

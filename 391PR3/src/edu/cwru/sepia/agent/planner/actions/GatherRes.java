@@ -19,6 +19,7 @@ public class GatherRes implements StripsAction {
 	public GatherRes(GatherRes g){
 		unitID=g.unitID;
 		resID=g.resID;
+		resType=g.resType;
 	}
 	
 	@Override

@@ -104,7 +104,7 @@ public class PEAgent extends Agent {
     	}
         StripsAction action=plan.peek();
     	if (action instanceof BuildPeasant){
-    		
+    		System.out.println("build peasant!!");
     		actions.put(townhallId, createSepiaAction(action,stateView));
     		plan.pop();
     	}

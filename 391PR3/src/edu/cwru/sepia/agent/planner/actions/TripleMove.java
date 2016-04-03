@@ -24,9 +24,9 @@ public class TripleMove extends DoubleMove implements StripsAction {
 		end1 = e1;
 		end2 = e2;
 		end3 = e3;
-		move1 = new StripsMove(unit1, start1, end1);
-		move2 = new StripsMove(unit2, start2, end2);
-		move3 = new StripsMove(unit3, start3, end3);
+		move1 = new StripsMove(unit1, start1, end1,0);
+		move2 = new StripsMove(unit2, start2, end2,0);
+		move3 = new StripsMove(unit3, start3, end3,0);
 	}
 	
 	public TripleMove(StripsMove m1,StripsMove m2,StripsMove m3){

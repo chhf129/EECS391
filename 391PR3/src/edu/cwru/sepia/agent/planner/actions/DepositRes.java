@@ -16,6 +16,7 @@ public class DepositRes implements StripsAction {
 	}
 	public DepositRes(DepositRes d){
 		unitID=d.unitID;
+		resType=d.resType;
 	}
 	@Override
 	public boolean preconditionsMet(GameState state) {

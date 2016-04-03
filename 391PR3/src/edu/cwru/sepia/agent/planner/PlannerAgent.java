@@ -120,7 +120,7 @@ public class PlannerAgent extends Agent {
     private GameState exploreNode(GameState node, PriorityQueue<GameState> openList, LinkedList<GameState> closedList){
     	System.out.println("exploring node");
     	node.printStatus();
-    	for (GameState child: node.generateChildren(0)){
+    	for (GameState child: node.generateChildren()){
     		if(child.isGoal()){
     			System.out.println("found goal");
     			return child;
@@ -201,14 +201,21 @@ public class PlannerAgent extends Agent {
             outputWriter = new PrintWriter(outputFile.getAbsolutePath());
 
             Stack<StripsAction> tempPlan = (Stack<StripsAction>) plan.clone();
+            int i=0;
             while(!tempPlan.isEmpty()) {
                 outputWriter.println(tempPlan.pop().toString());
+                System.out.println(i);
+                i++;
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
+        }
+        	catch(NullPointerException e){
+        		e.printStackTrace();
+        	}
+        finally {
             if (outputWriter != null)
                 outputWriter.close();
         }

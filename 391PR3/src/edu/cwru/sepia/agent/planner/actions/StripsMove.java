@@ -9,16 +9,19 @@ import edu.cwru.sepia.agent.planner.ResourceInfo;
 public class StripsMove implements StripsAction {
 	public Position start, end;
 	public int unitID;
+	public int costOffSet;
 	
-	public StripsMove (int id, Position s, Position e){
+	public StripsMove (int id, Position s, Position e, int costOffSet){
 		start = s;
 		end = e;
 		unitID = id;
+		this.costOffSet=costOffSet;
 	}
 	public StripsMove (StripsMove s){
 		start = s.start;
 		end = s.end;
 		unitID = s.unitID;
+		costOffSet=s.costOffSet;
 	}
 	
 	@Override
@@ -70,7 +73,7 @@ public class StripsMove implements StripsAction {
 		}
 		//TODO add length of A* path to cost
 		AstarAgent a = new AstarAgent();
-		newState.cost += a.findPath(state, unitID, end).size();
+		newState.cost += a.findPath(state, unitID, end).size()+costOffSet;
 		newState.heuristic = newState.heuristic();
 		newState.cause = this;
 		newState.parent = state;
