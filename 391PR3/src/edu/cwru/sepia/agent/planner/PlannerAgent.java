@@ -169,7 +169,7 @@ public class PlannerAgent extends Agent {
     	if (end.parent != null){
     		GameState prev = end.parent;
     		while (prev.parent != null){
-    			for (StripsAction c:end.cause){
+    			for (StripsAction c:prev.cause){
     			seq.push(c);
     			}
     			prev = prev.parent;

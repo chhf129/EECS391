@@ -197,10 +197,13 @@ public class GameState implements Comparable<GameState> {
     	List<GameState> returnList=new LinkedList<>();
     	List<GameState> returnList1=new LinkedList<>();
     	returnList=getAllChildren(peasants.get(0));
+    	// one peasant
     	if (peasants.size()==1){
     		return returnList;
     	}
+    	//two peasant
     	else {
+    		// generatechildren for the second based on list returned by the first peasant
     		for(GameState gameState:returnList){
     			returnList1.addAll(gameState.getAllChildren(peasants.get(1)));
     		}
@@ -208,6 +211,7 @@ public class GameState implements Comparable<GameState> {
     			gameState.combineState();
     		}
     	}
+    	//three peasant
     	if (peasants.size()==3){
     		List<GameState> returnList2=new LinkedList<>();
     		for(GameState gameState:returnList1){
@@ -223,25 +227,17 @@ public class GameState implements Comparable<GameState> {
     	}
     }
     
-    //TODO: put move action together into deposit or gather
     private List<GameState> getAllChildren(Peasant peasnt){
       	List<GameState> returnList = new LinkedList<>();
+      	//deposit resource
     	if (peasnt.isCarrying){
     		DepositRes depositR=new DepositRes(peasnt.id);
+    		//if adjcent to townhall, deposit
     		if (depositR.preconditionsMet(this)){
     			returnList.add(depositR.apply(this));
     		}
-    		/*
-    		DepositGold depositG=new DepositGold(peasnt.id);
-    		DepositWood depositW=new DepositWood(peasnt.id);
-    		if (depositG.preconditionsMet(this)){
-    			returnList.add(depositG.apply(this));
-    		}
-    		else if (depositW.preconditionsMet(this)){
-        		returnList.add(depositW.apply(this));
-    		}
-    		*/
     		else{
+    			//else move to adjcent tile near townhall
     			Position minPos=findClosestTile(townHall.location,peasnt.location);
     			GameState afterMove=new GameState(this);
     			StripsMove move=new StripsMove(peasnt.id,peasnt.location,minPos,0);
@@ -251,11 +247,10 @@ public class GameState implements Comparable<GameState> {
     			returnList.add(afterMove);
     		}
     	}
-    	
+    	//gather resource
     	else{
-			// goldTarget and woodTarget is the closest gold mine/tree to
-			// peasant(0), while still has resource remain
 			double minDis = Double.MAX_VALUE;
+			// goldTarget and woodTarget is the closest gold mine/tree to peasant(0), while still has resource remain
 			ResourceInfo goldTarget = null;
 			ResourceInfo woodTarget = null;
 			if (townHall.gold < goldGoal) {
@@ -268,9 +263,11 @@ public class GameState implements Comparable<GameState> {
 					}
 				}
 				GatherRes gatherR = new GatherRes(peasnt.id, goldTarget.id);
+				//adjcent to gold,gather
 				if (gatherR.preconditionsMet(this)) {
 					returnList.add(gatherR.apply(this));
 				} 
+				//else move the nearest tile to gold
 				else {
 					Position closestG = findClosestTile(goldTarget.location, peasnt.location);
 					StripsMove move = new StripsMove(peasnt.id, peasnt.location, closestG,-10);
@@ -280,7 +277,7 @@ public class GameState implements Comparable<GameState> {
 					}
 				}
 			}
-			
+			//same as gold but for wood
 			if (townHall.wood < woodGoal) {
 				minDis = Double.MAX_VALUE;
 				

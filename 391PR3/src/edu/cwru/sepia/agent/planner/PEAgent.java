@@ -145,6 +145,9 @@ public class PEAgent extends Agent {
     			if (result==null || result.getFeedback().equals(ActionFeedback.COMPLETED)){
     				tempActions.put(unitID, tempAction);
     				}
+    			else if (result.getFeedback().equals(ActionFeedback.FAILED)){
+    				canGoNext=true;
+    			}
     			else{
     				canGoNext=false;
     				}

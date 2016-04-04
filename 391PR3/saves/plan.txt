@@ -1,0 +1,135 @@
+Move: peasant 1 from (8, 10) to (5, 8)
+GatherGold: peasant 1 from mine 2
+Move: peasant 1 from (5, 8) to (7, 8)
+DepositGold: peasant 1
+Move: peasant 1 from (7, 8) to (14, 4)
+GatherGold: peasant 1 from mine 3
+Move: peasant 1 from (14, 4) to (9, 8)
+DepositGold: peasant 1
+Move: peasant 1 from (9, 8) to (14, 4)
+GatherGold: peasant 1 from mine 3
+Move: peasant 1 from (14, 4) to (9, 8)
+DepositGold: peasant 1
+Move: peasant 1 from (9, 8) to (14, 4)
+GatherGold: peasant 1 from mine 3
+Move: peasant 1 from (14, 4) to (9, 8)
+DepositGold: peasant 1
+Move: peasant 1 from (9, 8) to (14, 4)
+GatherGold: peasant 1 from mine 3
+BuildPeasant: peasant 2 at (8, 8)
+DoubleMove:
+	Move: peasant 1 from (14, 4) to (9, 8)
+	Move: peasant 2 from (8, 8) to (14, 4)
+DepositGold: peasant 1
+DepositGold: peasant 1
+GatherGold: peasant 2 from mine 3
+DoubleMove:
+	Move: peasant 1 from (9, 8) to (21, 15)
+	Move: peasant 2 from (14, 4) to (9, 8)
+GatherGold: peasant 1 from mine 4
+GatherGold: peasant 1 from mine 4
+DepositGold: peasant 2
+DoubleMove:
+	Move: peasant 1 from (21, 15) to (9, 10)
+	Move: peasant 2 from (9, 8) to (21, 15)
+DepositGold: peasant 1
+DepositGold: peasant 1
+GatherGold: peasant 2 from mine 4
+DoubleMove:
+	Move: peasant 1 from (9, 10) to (21, 16)
+	Move: peasant 2 from (21, 15) to (9, 10)
+GatherGold: peasant 1 from mine 4
+GatherGold: peasant 1 from mine 4
+DepositGold: peasant 2
+BuildPeasant: peasant 3 at (8, 8)
+BuildPeasant: peasant 3 at (8, 8)
+Move: peasant 2 from (9, 10) to (21, 15)
+Move: peasant 1 from (21, 16) to (9, 10)
+GatherGold: peasant 2 from mine 4
+Move: peasant 3 from (8, 8) to (21, 16)
+DepositGold: peasant 1
+DepositGold: peasant 1
+DepositGold: peasant 1
+Move: peasant 2 from (21, 15) to (9, 9)
+GatherGold: peasant 3 from mine 4
+Move: peasant 1 from (9, 10) to (21, 15)
+Move: peasant 1 from (9, 10) to (21, 15)
+Move: peasant 1 from (9, 10) to (21, 15)
+DepositGold: peasant 2
+Move: peasant 3 from (21, 16) to (9, 10)
+GatherGold: peasant 1 from mine 4
+GatherGold: peasant 1 from mine 4
+GatherGold: peasant 1 from mine 4
+Move: peasant 2 from (9, 9) to (21, 16)
+DepositGold: peasant 3
+Move: peasant 1 from (21, 15) to (9, 9)
+GatherGold: peasant 2 from mine 4
+Move: peasant 3 from (9, 10) to (21, 15)
+DepositGold: peasant 1
+DepositGold: peasant 1
+DepositGold: peasant 1
+Move: peasant 2 from (21, 16) to (9, 10)
+GatherGold: peasant 3 from mine 4
+Move: peasant 1 from (9, 9) to (5, 11)
+Move: peasant 1 from (9, 9) to (5, 11)
+Move: peasant 1 from (9, 9) to (5, 11)
+DepositGold: peasant 2
+Move: peasant 3 from (21, 15) to (9, 9)
+GatherWood: peasant 1 from forest 5
+GatherWood: peasant 1 from forest 5
+GatherWood: peasant 1 from forest 5
+Move: peasant 2 from (9, 10) to (21, 15)
+DepositGold: peasant 3
+Move: peasant 1 from (5, 11) to (7, 10)
+GatherGold: peasant 2 from mine 4
+Move: peasant 3 from (9, 9) to (5, 11)
+DepositWood: peasant 1
+DepositWood: peasant 1
+DepositWood: peasant 1
+Move: peasant 2 from (21, 15) to (9, 10)
+GatherWood: peasant 3 from forest 5
+Move: peasant 1 from (7, 10) to (5, 12)
+Move: peasant 1 from (7, 10) to (5, 12)
+Move: peasant 1 from (7, 10) to (5, 12)
+DepositGold: peasant 2
+Move: peasant 3 from (5, 11) to (7, 10)
+GatherWood: peasant 1 from forest 5
+GatherWood: peasant 1 from forest 5
+GatherWood: peasant 1 from forest 5
+Move: peasant 2 from (9, 10) to (5, 11)
+DepositWood: peasant 3
+Move: peasant 1 from (5, 12) to (8, 10)
+Move: peasant 1 from (5, 12) to (8, 10)
+Move: peasant 1 from (5, 12) to (8, 10)
+GatherWood: peasant 2 from forest 5
+Move: peasant 3 from (7, 10) to (11, 12)
+DepositWood: peasant 1
+DepositWood: peasant 1
+DepositWood: peasant 1
+Move: peasant 2 from (5, 11) to (7, 10)
+GatherWood: peasant 3 from forest 6
+Move: peasant 1 from (8, 10) to (11, 13)
+Move: peasant 1 from (8, 10) to (11, 13)
+Move: peasant 1 from (8, 10) to (11, 13)
+DepositWood: peasant 2
+Move: peasant 3 from (11, 12) to (9, 10)
+GatherWood: peasant 1 from forest 6
+GatherWood: peasant 1 from forest 6
+GatherWood: peasant 1 from forest 6
+Move: peasant 2 from (7, 10) to (11, 12)
+DepositWood: peasant 3
+Move: peasant 1 from (11, 13) to (8, 10)
+Move: peasant 1 from (11, 13) to (8, 10)
+Move: peasant 1 from (11, 13) to (8, 10)
+GatherWood: peasant 2 from forest 6
+Move: peasant 3 from (9, 10) to (12, 12)
+DepositWood: peasant 1
+DepositWood: peasant 1
+DepositWood: peasant 1
+Move: peasant 2 from (11, 12) to (9, 10)
+GatherWood: peasant 3 from forest 6
+Move: peasant 1 from (8, 10) to (5, 5)
+Move: peasant 1 from (8, 10) to (5, 5)
+Move: peasant 1 from (8, 10) to (5, 5)
+DepositWood: peasant 2
+Move: peasant 3 from (12, 12) to (9, 9)
