@@ -52,7 +52,7 @@ public class GameState implements Comparable<GameState> {
 	public List<Peasant> peasants;
 	public TownHallInfo townHall;
 	public GameState parent;
-	public StripsAction cause;
+	public List<StripsAction> cause;
 	public boolean buildPeasants;
 	
     /**
@@ -196,9 +196,6 @@ public class GameState implements Comparable<GameState> {
     	List<GameState> returnList1=new LinkedList<>();
     	returnList=getAllChildren(peasants.get(0));
     	if (peasants.size()==1){
-        	for(GameState it:returnList){
-        		System.out.println("children\n"+it.cause.toString());
-        	}
     		return returnList;
     	}
     	else {
@@ -217,15 +214,9 @@ public class GameState implements Comparable<GameState> {
     		for(GameState gameState:returnList1){
     			gameState.combineState();
     		}
-        	for(GameState it:returnList){
-        		System.out.println("children\n"+it.cause.toString());
-        	}
     		return returnList2;
     	}
     	else{
-        	for(GameState it:returnList){
-        		System.out.println("children\n"+it.cause.toString());
-        	}
     		return returnList1;
     	}
     }
@@ -323,36 +314,52 @@ public class GameState implements Comparable<GameState> {
     }
     
     private void combineState(){
-    	StripsAction parentCause=parent.cause;
-    	StripsAction result=null;;
-    	if (cause instanceof DepositRes){
+    	StripsAction c=cause.get(0);
+    	StripsAction toRemove=null;
+    	StripsAction result=null;
+    	for (StripsAction parentCause:parent.cause){
+    	if (c instanceof DepositRes){
     		if (parentCause instanceof DepositRes){
-    			result=new DoubleDeposit((DepositRes)parentCause,(DepositRes)cause);
+    			toRemove=parentCause;
+    			result=new DoubleDeposit((DepositRes)parentCause,(DepositRes)c);
     		}
     		else if (parentCause instanceof DoubleDeposit){
-    			result=new TripleDeposit(((DoubleDeposit)parentCause).deposit1,((DoubleDeposit)parentCause).deposit2,(DepositRes)cause);
+    			toRemove=parentCause;
+    			result=new TripleDeposit(((DoubleDeposit)parentCause).deposit1,((DoubleDeposit)parentCause).deposit2,(DepositRes)c);
     		}
 		}
-		else if (cause instanceof GatherRes){
+		else if (c instanceof GatherRes){
 			if (parentCause instanceof GatherRes){
+				toRemove=parentCause;
 				result=new DoubleGather((GatherRes)parentCause,(GatherRes)cause);
 			}
     		else if (parentCause instanceof DoubleGather){
-    			result=new TripleGather(((DoubleGather)parentCause).gather1,((DoubleGather)parentCause).gather2,(GatherRes)cause);
+    			toRemove=parentCause;
+    			result=new TripleGather(((DoubleGather)parentCause).gather1,((DoubleGather)parentCause).gather2,(GatherRes)c);
     		}
 		}
-		else if (cause instanceof StripsMove){
+		else if (c instanceof StripsMove){
 			if (parentCause instanceof StripsMove){
-				result=new DoubleMove((StripsMove)parentCause,(StripsMove)cause);
+				toRemove=parentCause;
+				result=new DoubleMove((StripsMove)parentCause,(StripsMove)c);
 			}
     		else if (parentCause instanceof DoubleMove){
-    			result=new TripleMove(((DoubleMove)parentCause).move1,((DoubleMove)parentCause).move2,(StripsMove)cause);
+    			toRemove=parentCause;
+    			result=new TripleMove(((DoubleMove)parentCause).move1,((DoubleMove)parentCause).move2,(StripsMove)c);
     		}
 		}
+    	}
     	if (result!=null){
-    		cause=result;
+    		parent.cause.remove(toRemove);
+    		cause.clear();
+    		cause.add(result);
+    		cause.addAll(parent.cause);
     		parent=parent.parent;
     	}
+    	else{
+    		cause.addAll(parent.cause);
+    	}
+    	/*
     	else{
     		GameState gs=parent;
         	playerID = gs.playerID;
@@ -377,6 +384,7 @@ public class GameState implements Comparable<GameState> {
         	cost = gs.cost;
         	heuristic = gs.heuristic;
     	}
+    	*/
     }
     
     
