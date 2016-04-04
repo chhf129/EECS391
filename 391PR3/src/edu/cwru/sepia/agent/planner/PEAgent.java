@@ -117,6 +117,7 @@ public class PEAgent extends Agent {
                     id++;
                 }
             }
+            updateIDmap=false;
     	}
     	
 		Map<Integer,Action> tempActions=new HashMap<>();

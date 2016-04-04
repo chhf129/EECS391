@@ -68,7 +68,7 @@ public class GatherRes implements StripsAction {
 		res.amount-=100;
 		newState.cost += 1;
 		newState.heuristic = newState.heuristic();
-		newState.cause = this;
+		newState.cause.add(this);
 		newState.parent = state;
 		
 		return newState;

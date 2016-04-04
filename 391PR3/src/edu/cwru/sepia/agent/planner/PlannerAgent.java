@@ -163,11 +163,15 @@ public class PlannerAgent extends Agent {
     
     private Stack<StripsAction> createSequence(GameState end, List<GameState> nodes){
     	Stack<StripsAction> seq = new Stack<StripsAction>();
-    	seq.push(end.cause);
+    	for (StripsAction c:end.cause){
+    	seq.push(c);
+    	}
     	if (end.parent != null){
     		GameState prev = end.parent;
     		while (prev.parent != null){
-    			seq.push(prev.cause);
+    			for (StripsAction c:end.cause){
+    			seq.push(c);
+    			}
     			prev = prev.parent;
     		}
     	}

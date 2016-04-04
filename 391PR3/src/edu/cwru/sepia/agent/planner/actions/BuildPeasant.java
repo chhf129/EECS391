@@ -26,7 +26,7 @@ public class BuildPeasant implements StripsAction {
 		newState.cost++;
 		newState.heuristic = state.heuristic();
 		newState.parent=state;
-		newState.cause=this;
+		newState.cause.add(this);
 		return newState;
 	}
 	

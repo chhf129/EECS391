@@ -57,7 +57,7 @@ public class GatherWood implements StripsAction {
 		wood.amount-=100;
 		newState.cost += 1;
 		newState.heuristic = newState.heuristic();
-		newState.cause = this;
+		newState.cause.add(this);
 		newState.parent = state;
 		return newState;
 	}

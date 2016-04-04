@@ -50,7 +50,7 @@ public class DoubleMove implements StripsAction{
 		newState.cost = state.cost + cost;
 		newState.heuristic = newState.heuristic();
 		newState.parent = state;
-		newState.cause = this;
+		newState.cause.add(this);
 		
 		return newState;
 	}

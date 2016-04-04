@@ -46,7 +46,7 @@ public class TripleGather extends DoubleGather implements StripsAction {
 		newState.cost = state.cost + 1;
 		newState.heuristic = newState.heuristic();
 		newState.parent = state;
-		newState.cause = this;
+		newState.cause.add(this);
 		return newState;
 	}
 	

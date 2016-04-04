@@ -76,6 +76,7 @@ public class GameState implements Comparable<GameState> {
         goldmines = new LinkedList<ResourceInfo>();
         forests = new LinkedList<ResourceInfo>();
         peasants = new LinkedList<Peasant>();
+        cause=new LinkedList<StripsAction>();
         List<ResourceView> resources = state.getAllResourceNodes();
         for (ResourceView rv: resources){
         	if (rv.getType() == ResourceNode.Type.GOLD_MINE){
@@ -119,6 +120,7 @@ public class GameState implements Comparable<GameState> {
     	cause=gs.cause;
     	cost = gs.cost;
     	heuristic = gs.heuristic;
+    	cause=new LinkedList<StripsAction>(); //don't copy cause, it will handled by combinestate
     }
     
     /**
@@ -331,7 +333,7 @@ public class GameState implements Comparable<GameState> {
 		else if (c instanceof GatherRes){
 			if (parentCause instanceof GatherRes){
 				toRemove=parentCause;
-				result=new DoubleGather((GatherRes)parentCause,(GatherRes)cause);
+				result=new DoubleGather((GatherRes)parentCause,(GatherRes)c);
 			}
     		else if (parentCause instanceof DoubleGather){
     			toRemove=parentCause;
