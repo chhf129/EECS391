@@ -8,6 +8,7 @@ import edu.cwru.sepia.agent.planner.actions.*;
 import edu.cwru.sepia.environment.model.history.History;
 import edu.cwru.sepia.environment.model.state.ResourceNode;
 import edu.cwru.sepia.environment.model.state.ResourceNode.ResourceView;
+import edu.cwru.sepia.environment.model.state.Unit.UnitView;
 import edu.cwru.sepia.environment.model.state.ResourceType;
 import edu.cwru.sepia.environment.model.state.State;
 import edu.cwru.sepia.environment.model.state.Template;
@@ -16,6 +17,7 @@ import edu.cwru.sepia.environment.model.state.Unit;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -34,6 +36,7 @@ public class PEAgent extends Agent {
     private Map<Integer, Integer> peasantIdMap;
     private int townhallId;
     private int peasantTemplateId;
+    private boolean updateIDmap=true;
 
     public PEAgent(int playernum, Stack<StripsAction> plan) {
         super(playernum);
@@ -45,13 +48,15 @@ public class PEAgent extends Agent {
     @Override
     public Map<Integer, Action> initialStep(State.StateView stateView, History.HistoryView historyView) {
         // gets the townhall ID and the peasant ID
+    	int id=1;
         for(int unitId : stateView.getUnitIds(playernum)) {
             Unit.UnitView unit = stateView.getUnit(unitId);
             String unitType = unit.getTemplateView().getName().toLowerCase();
             if(unitType.equals("townhall")) {
                 townhallId = unitId;
             } else if(unitType.equals("peasant")) {
-                peasantIdMap.put(unitId, unitId);
+                peasantIdMap.put(id, unitId);
+                id++;
             }
         }
 
@@ -102,37 +107,53 @@ public class PEAgent extends Agent {
     	if (plan.isEmpty()){
     		return actions;
     	}
+    	if (updateIDmap){
+        	int id=1;
+            for(int unitId : stateView.getUnitIds(playernum)) {
+                Unit.UnitView unit = stateView.getUnit(unitId);
+                String unitType = unit.getTemplateView().getName().toLowerCase();
+                if(unitType.equals("peasant")) {
+                    peasantIdMap.put(id, unitId);
+                    id++;
+                }
+            }
+    	}
+    	
+		Map<Integer,Action> tempActions=new HashMap<>();
+		boolean canGoNext=true;
         StripsAction action=plan.peek();
     	if (action instanceof BuildPeasant){
     		System.out.println("build peasant!!");
-    		actions.put(townhallId, createSepiaAction(action,stateView));
+    		actions.put(townhallId, createSepiaAction(action,stateView).get(0));
     		plan.pop();
+    		updateIDmap=true;
     	}
     	else{
-    		Action tempAction=createSepiaAction(action,stateView);
-    		int unitID=tempAction.getUnitId();
-    		
-    		if (stateView.getTurnNumber() != 0) {
-
-    			  Map<Integer, ActionResult> actionResults = historyView.getCommandFeedback(playernum, stateView.getTurnNumber() - 1);
-    			  
-    			  
-    			  for (ActionResult result : actionResults.values()) {
-    				  if (actionResults.size()!=1){
-    					  System.err.println("more than 1 action assigned to unit");
-    				  }
+    		Map<Integer, ActionResult> actionResults=new HashMap<>();
+			if (stateView.getTurnNumber() != 0) {
+				actionResults= historyView.getCommandFeedback(playernum, stateView.getTurnNumber() - 1);
+				for (ActionResult result : actionResults.values()) {
     			    System.out.println(result.toString());
-
     			  }
-    			  
-    			  ActionResult result=actionResults.get(unitID);
-    			  if (result==null || result.getFeedback().equals(ActionFeedback.COMPLETED)){
-    				  actions.put(unitID, tempAction);
-    				  plan.pop();
-   			  }
-    			}
+			}
     		
+    		List<Action> actionList=createSepiaAction(action,stateView);
+    		for (Action tempAction:actionList){
+    			int unitID=tempAction.getUnitId();
+    			ActionResult result=actionResults.get(unitID);
+    			if (result==null || result.getFeedback().equals(ActionFeedback.COMPLETED)){
+    				tempActions.put(unitID, tempAction);
+    				}
+    			else{
+    				canGoNext=false;
+    				}
+    		}
+        	if (canGoNext){
+        		actions.putAll(tempActions);
+        		plan.pop();
+        	}
     	}
+
         return actions;
     }
 
@@ -141,71 +162,63 @@ public class PEAgent extends Agent {
      * @param action StripsAction
      * @return SEPIA representation of same action
      */
-    private Action createSepiaAction(StripsAction action, State.StateView stateView) {
-    	Action returnAction=null;
+    private List<Action> createSepiaAction(StripsAction action, State.StateView stateView) {
+    	List<Action> returnAction=new LinkedList<>();
     	Unit.UnitView townHall=stateView.getUnit(townhallId);
     	Position townHallPos=new Position(townHall.getXPosition(),townHall.getYPosition());
     	if (action instanceof BuildPeasant){
-    		returnAction=Action.createPrimitiveProduction(townhallId,peasantTemplateId);
+    		returnAction.add(Action.createPrimitiveProduction(townhallId,peasantTemplateId));
     	}
     	else{
     		Unit.UnitView peasant;
     		Position unitPos;
     		int unitID;
-    		/*
-    		if (action instanceof DepositGold ){
-    			unitID=((DepositGold) action).unitID;
-    			peasant=stateView.getUnit(unitID);
-    			unitPos=new Position(peasant.getXPosition(),peasant.getYPosition());
-    			returnAction=Action.createPrimitiveDeposit(unitID,unitPos.getDirection(townHallPos));
-    		}
-    		else if (action instanceof DepositWood){
-    			unitID=((DepositWood) action).unitID;
-    			peasant=stateView.getUnit(unitID);
-    			unitPos=new Position(peasant.getXPosition(),peasant.getYPosition());
-    			returnAction=Action.createPrimitiveDeposit(unitID,unitPos.getDirection(townHallPos));
-    		}
-    		*/
     		if (action instanceof DepositRes ){
-    			unitID=((DepositRes) action).unitID;
+    			unitID=peasantIdMap.get(((DepositRes) action).unitID);
     			peasant=stateView.getUnit(unitID);
     			unitPos=new Position(peasant.getXPosition(),peasant.getYPosition());
-    			returnAction=Action.createPrimitiveDeposit(unitID,unitPos.getDirection(townHallPos));
+    			returnAction.add(Action.createPrimitiveDeposit(unitID,unitPos.getDirection(townHallPos)));
+    		}
+    		else if (action instanceof DoubleDeposit){
+    			returnAction.addAll(createSepiaAction(((DoubleDeposit) action).deposit1,stateView));
+    			returnAction.addAll(createSepiaAction(((DoubleDeposit) action).deposit2,stateView));
+    		}
+    		else if (action instanceof TripleDeposit){
+    			returnAction.addAll(createSepiaAction(((TripleDeposit) action).deposit1,stateView));
+    			returnAction.addAll(createSepiaAction(((TripleDeposit) action).deposit2,stateView));
+    			returnAction.addAll(createSepiaAction(((TripleDeposit) action).deposit3,stateView));
     		}
     		else if (action instanceof GatherRes){
-    			unitID=((GatherRes) action).unitID;
+    			unitID=peasantIdMap.get(((GatherRes) action).unitID);
     			peasant=stateView.getUnit(unitID);
     			unitPos=new Position(peasant.getXPosition(),peasant.getYPosition());
     			
     			ResourceView res=stateView.getResourceNode(((GatherRes) action).resID);
     			Position resPos=new Position(res.getXPosition(),res.getYPosition());
-    			returnAction=Action.createPrimitiveGather(unitID, unitPos.getDirection(resPos));
+    			returnAction.add(Action.createPrimitiveGather(unitID, unitPos.getDirection(resPos)));
     		}
-    		/*
-    		else if (action instanceof GatherGold){
-    			unitID=((GatherGold) action).unitID;
-    			peasant=stateView.getUnit(unitID);
-    			unitPos=new Position(peasant.getXPosition(),peasant.getYPosition());
-    			
-    			ResourceView gold=stateView.getResourceNode(((GatherGold) action).goldID);
-    			Position resPos=new Position(gold.getXPosition(),gold.getYPosition());
-    			returnAction=Action.createPrimitiveGather(unitID, unitPos.getDirection(resPos));
+    		else if (action instanceof DoubleGather){
+    			returnAction.addAll(createSepiaAction(((DoubleGather) action).gather1,stateView));
+    			returnAction.addAll(createSepiaAction(((DoubleGather) action).gather2,stateView));
     		}
-    		else if (action instanceof GatherWood){
-    			unitID=((GatherWood) action).unitID;
-    			peasant=stateView.getUnit(unitID);
-    			unitPos=new Position(peasant.getXPosition(),peasant.getYPosition());
-    			
-    			ResourceView wood=stateView.getResourceNode(((GatherWood) action).woodID);
-    			Position resPos=new Position(wood.getXPosition(),wood.getYPosition());
-    			returnAction=Action.createPrimitiveGather(unitID, unitPos.getDirection(resPos));
+    		else if (action instanceof TripleGather){
+    			returnAction.addAll(createSepiaAction(((TripleGather) action).gather1,stateView));
+    			returnAction.addAll(createSepiaAction(((TripleGather) action).gather2,stateView));
+    			returnAction.addAll(createSepiaAction(((TripleGather) action).gather3,stateView));
     		}
-    		*/
-    		
     		else if (action instanceof StripsMove){
-    			unitID=((StripsMove) action).unitID;
+    			unitID=peasantIdMap.get(((StripsMove) action).unitID);
     			Position end=((StripsMove) action).end;
-    			returnAction=Action.createCompoundMove(unitID, end.x, end.y);
+    			returnAction.add(Action.createCompoundMove(unitID, end.x, end.y));
+    		}
+    		else if (action instanceof DoubleMove){
+    			returnAction.addAll(createSepiaAction(((DoubleMove) action).move1,stateView));
+    			returnAction.addAll(createSepiaAction(((DoubleMove) action).move2,stateView));
+    		}
+    		else if (action instanceof TripleMove){
+    			returnAction.addAll(createSepiaAction(((TripleMove) action).move1,stateView));
+    			returnAction.addAll(createSepiaAction(((TripleMove) action).move2,stateView));
+    			returnAction.addAll(createSepiaAction(((TripleMove) action).move3,stateView));
     		}
     	}
         return returnAction;
