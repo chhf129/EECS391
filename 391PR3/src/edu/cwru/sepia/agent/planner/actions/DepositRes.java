@@ -52,6 +52,7 @@ public class DepositRes implements StripsAction {
 		newState.heuristic = newState.heuristic();
 		newState.cause.add(this);
 		newState.parent = state;
+		
 		return newState;
 	}
 

@@ -11,7 +11,7 @@ import edu.cwru.sepia.environment.model.state.ResourceNode.ResourceView;
 
 public class ResourceInfo{
 	public ResourceNode.Type type;
-	public int amount,id;
+	public int amount,id,unitID=-1;
 	public Position location;
 	
 	public ResourceInfo(ResourceView rv){
@@ -26,5 +26,6 @@ public class ResourceInfo{
 		amount = ri.amount;
 		location = new Position(ri.location.x, ri.location.y);
 		id=ri.id;
+		unitID=ri.unitID;
 	}
 }

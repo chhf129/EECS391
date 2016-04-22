@@ -183,7 +183,7 @@ public class GameState implements Comparable<GameState> {
      * @return true if the goal conditions are met in this instance of game state.
      */
     public boolean isGoal() {
-    	System.out.println(goldGoal+","+woodGoal);
+    	//System.out.println(goldGoal+","+woodGoal);
         return townHall.gold == goldGoal && townHall.wood == woodGoal;
     }
 
@@ -253,15 +253,15 @@ public class GameState implements Comparable<GameState> {
 			// goldTarget and woodTarget is the closest gold mine/tree to peasant(0), while still has resource remain
 			ResourceInfo goldTarget = null;
 			ResourceInfo woodTarget = null;
-			if (townHall.gold < goldGoal) {
-				for (ResourceInfo r : goldmines) {
-					if (r.amount > 0) {
-						if (r.location.euclideanDistance(townHall.location) < minDis) {
-							minDis = r.location.euclideanDistance(townHall.location);
-							goldTarget = r;
-						}
+			for (ResourceInfo r : goldmines) {
+				if (r.amount > 0 && (r.unitID==peasnt.id || r.unitID==-1)) {
+					if (r.location.euclideanDistance(townHall.location) < minDis) {
+						minDis = r.location.euclideanDistance(townHall.location);
+						goldTarget = r;
 					}
 				}
+			}
+			if (townHall.gold < goldGoal && goldTarget!=null) {
 				GatherRes gatherR = new GatherRes(peasnt.id, goldTarget.id);
 				//adjcent to gold,gather
 				if (gatherR.preconditionsMet(this)) {
@@ -277,18 +277,19 @@ public class GameState implements Comparable<GameState> {
 					}
 				}
 			}
-			//same as gold but for wood
-			if (townHall.wood < woodGoal) {
-				minDis = Double.MAX_VALUE;
-				
-				for (ResourceInfo r : forests) {
-					if (r.amount > 0) {
-						if (r.location.euclideanDistance(townHall.location) < minDis) {
-							minDis = r.location.euclideanDistance(townHall.location);
-							woodTarget = r;
-						}
+			else{
+			for (ResourceInfo r : forests) {
+				if (r.amount > 0 && (r.unitID==peasnt.id || r.unitID==-1)) {
+					if (r.location.euclideanDistance(townHall.location) < minDis) {
+						minDis = r.location.euclideanDistance(townHall.location);
+						woodTarget = r;
 					}
 				}
+			}
+			//same as gold but for wood
+			if (townHall.wood < woodGoal && woodTarget!=null) {
+				minDis = Double.MAX_VALUE;
+
 				GatherRes gatherR = new GatherRes(peasnt.id, woodTarget.id);
 				if (gatherR.preconditionsMet(this)) {
 					returnList.add(gatherR.apply(this));
@@ -303,6 +304,7 @@ public class GameState implements Comparable<GameState> {
 				}
 			}
 		}
+    	}
     	BuildPeasant build=new BuildPeasant();
     	if (build.preconditionsMet(this)){
     		GameState temp=build.apply(this);
@@ -314,50 +316,56 @@ public class GameState implements Comparable<GameState> {
     
     private void combineState(){
     	StripsAction c=cause.get(0);
-    	StripsAction toRemove=null;
+    	int toRemoveIndex=-1;
     	StripsAction result=null;
-    	for (StripsAction parentCause:parent.cause){
+    	for (int i=0;i<parent.cause.size();i++){
+    		StripsAction parentCause=parent.cause.get(i);
     	if (c instanceof DepositRes){
     		if (parentCause instanceof DepositRes){
-    			toRemove=parentCause;
+    			toRemoveIndex=i;
     			result=new DoubleDeposit((DepositRes)parentCause,(DepositRes)c);
     		}
     		else if (parentCause instanceof DoubleDeposit){
-    			toRemove=parentCause;
+    			toRemoveIndex=i;
     			result=new TripleDeposit(((DoubleDeposit)parentCause).deposit1,((DoubleDeposit)parentCause).deposit2,(DepositRes)c);
     		}
 		}
 		else if (c instanceof GatherRes){
 			if (parentCause instanceof GatherRes){
-				toRemove=parentCause;
+				toRemoveIndex=i;
 				result=new DoubleGather((GatherRes)parentCause,(GatherRes)c);
 			}
     		else if (parentCause instanceof DoubleGather){
-    			toRemove=parentCause;
+    			toRemoveIndex=i;
     			result=new TripleGather(((DoubleGather)parentCause).gather1,((DoubleGather)parentCause).gather2,(GatherRes)c);
     		}
 		}
 		else if (c instanceof StripsMove){
 			if (parentCause instanceof StripsMove){
-				toRemove=parentCause;
+				toRemoveIndex=i;
 				result=new DoubleMove((StripsMove)parentCause,(StripsMove)c);
 			}
     		else if (parentCause instanceof DoubleMove){
-    			toRemove=parentCause;
+    			toRemoveIndex=i;
     			result=new TripleMove(((DoubleMove)parentCause).move1,((DoubleMove)parentCause).move2,(StripsMove)c);
     		}
 		}
     	}
     	if (result!=null){
-    		parent.cause.remove(toRemove);
-    		cause.clear();
+        	cause.clear();
     		cause.add(result);
-    		cause.addAll(parent.cause);
-    		parent=parent.parent;
+    		for (int i=0;i<parent.cause.size();i++){
+    			if (i!=toRemoveIndex){
+    				StripsAction parentCause=parent.cause.get(i);
+    				cause.add(parentCause);
+    			}
+    		}
     	}
     	else{
     		cause.addAll(parent.cause);
     	}
+    	parent=parent.parent;
+    	
     	/*
     	else{
     		GameState gs=parent;

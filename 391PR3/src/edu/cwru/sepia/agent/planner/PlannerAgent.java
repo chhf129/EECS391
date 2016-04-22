@@ -102,7 +102,7 @@ public class PlannerAgent extends Agent {
     	
     	//while there are nodes to explore, pop next location and explore it
     	while(!openList.isEmpty()){
-    		System.out.println("iteration");
+    		//System.out.println("iteration");
     		GameState node = openList.poll();
     		GameState finish = this.exploreNode(node, openList, closedList);
     		if (finish != null){
@@ -118,8 +118,8 @@ public class PlannerAgent extends Agent {
     }
     
     private GameState exploreNode(GameState node, PriorityQueue<GameState> openList, LinkedList<GameState> closedList){
-    	System.out.println("exploring node");
-    	node.printStatus();
+    	//System.out.println("exploring node");
+    //	node.printStatus();
     	for (GameState child: node.generateChildren()){
     		if(child.isGoal()){
     			System.out.println("found goal");
@@ -134,15 +134,15 @@ public class PlannerAgent extends Agent {
     }
     
     private void examineNode(GameState child, PriorityQueue<GameState> openList, LinkedList<GameState> closedList){
-    	System.out.println("examining child");
-    	child.printStatus();
+    //	System.out.println("examining child");
+    //	child.printStatus();
     	boolean valid = true;
     	//check in closed list
     	for (GameState gs: closedList){
     		valid = valid && !child.equals(gs);
     	}
 		if (!valid){
-			System.out.println("found child in closed list");
+	//		System.out.println("found child in closed list");
 		}
     	//check in open list
     	if (valid){
@@ -150,14 +150,14 @@ public class PlannerAgent extends Agent {
     			valid = valid && !child.equals(gs);
     		}
     		if (!valid){
-    			System.out.println("found child in open list");
+    	//		System.out.println("found child in open list");
     		}
     	}
     	//if not in either list, add location to open list
     	if(valid){
-    		System.out.println("adding child");
+    	//	System.out.println("adding child");
     		openList.add(child);
-    		System.out.println(openList.size());
+    	//	System.out.println(openList.size());
     	}
     }
     
@@ -208,8 +208,6 @@ public class PlannerAgent extends Agent {
             int i=0;
             while(!tempPlan.isEmpty()) {
                 outputWriter.println(tempPlan.pop().toString());
-                System.out.println(i);
-                i++;
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();

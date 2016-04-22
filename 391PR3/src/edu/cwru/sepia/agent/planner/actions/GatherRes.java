@@ -49,7 +49,7 @@ public class GatherRes implements StripsAction {
 		}
 		
 		if (peasant.location.isAdjacent(res.location) && res.amount>0 &&
-				!peasant.isCarrying){
+				!peasant.isCarrying && (res.unitID==-1 ||res.unitID==unitID)){
 			return true;
 		}
 		
@@ -70,7 +70,7 @@ public class GatherRes implements StripsAction {
 		newState.heuristic = newState.heuristic();
 		newState.cause.add(this);
 		newState.parent = state;
-		
+		res.unitID=unitID;
 		return newState;
 	}
 	
