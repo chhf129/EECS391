@@ -27,6 +27,8 @@ public class RLAgent extends Agent {
      */
     private List<Integer> myFootmen;
     private List<Integer> enemyFootmen;
+    //stores targets of each of player's footman (-1 means no target or footman is dead)
+    private List<Integer> targets;
 
     /**
      * Convenience variable specifying enemy agent number. Use this whenever referring
@@ -120,6 +122,10 @@ public class RLAgent extends Agent {
                 System.err.println("Unknown unit type: " + unitName);
             }
         }
+        targets = new LinkedList<>();
+        for (int i: myFootmen){
+        	targets.add(-1);
+        }
 
         return middleStep(stateView, historyView);
     }
@@ -194,8 +200,18 @@ public class RLAgent extends Agent {
      * @param attackerId The footman that will be attacking
      * @return The enemy footman ID this unit should attack
      */
+    //select action with greatest Q value
     public int selectAction(State.StateView stateView, History.HistoryView historyView, int attackerId) {
-        return -1;
+        int targetId=-1;
+        double targetQ = Double.NEGATIVE_INFINITY;
+        for (int t: enemyFootmen){
+        	double q = calcQValue(stateView, historyView, attackerId, t);
+        	if (q > targetQ){
+        		targetQ = q;
+        		targetId = t;
+        	}
+        }
+    	return targetId;
     }
 
     /**
@@ -232,7 +248,44 @@ public class RLAgent extends Agent {
      * @return The current reward
      */
     public double calculateReward(State.StateView stateView, History.HistoryView historyView, int footmanId) {
-        return 0;
+    	double reward = 0;
+    	int targetId = -1;
+    	//check if the unit participated in combat this turn
+    	for (DamageLog dl: historyView.getDamageLogs(stateView.getTurnNumber()-1)){
+    		//if attacking, add to reward and check for kill later
+    		if (dl.getAttackerController() == 0 && dl.getAttackerID() == footmanId){
+    			reward += dl.getDamage();
+    			targetId = dl.getDefenderID();
+    		//if attacked, subtract from reward
+    		} else if (dl.getDefenderController() == 0 && dl.getDefenderID() == footmanId){
+    			reward -= dl.getDamage();
+    		}
+    	}
+    	//check for important deaths
+    	for (DeathLog dl: historyView.getDeathLogs(stateView.getTurnNumber()-1)){
+    		//if the unit died subtract from reward
+    		if (dl.getController() == 0 && dl.getDeadUnitID() == footmanId){
+    			reward -= 100;
+    		//if unit killed its target add to reward
+    		} else if (targetId > -1 && dl.getController() == 1 && dl.getDeadUnitID() == targetId){
+    			reward += 100;
+    		}
+    	}
+    	//find when the last action was issued to this unit and discount the reward
+    	boolean foundAction = false;
+    	int t = stateView.getTurnNumber();
+    	while (!foundAction){
+    		for (Map.Entry<Integer, Action> command: historyView.getCommandsIssued(0, t).entrySet()){
+    			if(command.getKey() == footmanId){
+    				foundAction = true;
+    				break;
+    			}
+    		}
+    		t--;
+    	}
+    	reward += (-0.1 * stateView.getTurnNumber() - t);
+    	
+        return reward;
     }
 
     /**
@@ -253,7 +306,14 @@ public class RLAgent extends Agent {
                              History.HistoryView historyView,
                              int attackerId,
                              int defenderId) {
-        return 0;
+        double[] features = calculateFeatureVector(stateView, historyView, attackerId, defenderId);
+        int q =0;
+        //simple linear model
+        for (int i=0; i< weights.length; i++){
+        	q += weights[i] * features[i];
+        }
+        
+    	return q;
     }
 
     /**
@@ -273,11 +333,31 @@ public class RLAgent extends Agent {
      * @param defenderId An enemy footman. The one you are considering attacking.
      * @return The array of feature function outputs.
      */
+    /*
+     * Features list:
+     * 		constant
+     * 		distance between units
+     * 		amount of target's hp left
+     * 		number of other units attacking
+     */
     public double[] calculateFeatureVector(State.StateView stateView,
                                            History.HistoryView historyView,
                                            int attackerId,
                                            int defenderId) {
-        return null;
+        double[] features = new double[4];
+        Unit.UnitView attacker = stateView.getUnit(attackerId);
+        Unit.UnitView target = stateView.getUnit(defenderId);
+        features[0] = 2;//arbitrary constant for dot product;
+        features[1] = Math.sqrt(Math.pow(attacker.getXPosition() - target.getXPosition(),  2) + Math.pow(attacker.getYPosition() - target.getYPosition(),  2));//distance
+        features[2] = target.getHP();
+        features[3] = 0;//number attacking target
+        for (int i: targets){
+        	if (i == defenderId){
+        		features[3]++;
+        	}
+        }
+        
+    	return features;
     }
 
     /**
