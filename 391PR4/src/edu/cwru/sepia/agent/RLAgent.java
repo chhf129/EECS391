@@ -210,7 +210,7 @@ public class RLAgent extends Agent {
     		//remove all dead units
     		for(DeathLog deathLog : historyView.getDeathLogs(stateView.getTurnNumber() - 1)){
     			if(deathLog.getController() == playernum){
-    				myFootmen.remove(this.myFootmen.indexOf(deathLog.getDeadUnitID()));
+    				myFootmen.remove(myFootmen.indexOf(deathLog.getDeadUnitID()));
     				attackMap.remove(deathLog.getDeadUnitID());
     			}
     			else if(deathLog.getController() == ENEMY_PLAYERNUM)
@@ -267,7 +267,7 @@ public class RLAgent extends Agent {
      * event point is when at least one unit is dead or get hit
      */
     private boolean ifEventPoint(State.StateView stateView, History.HistoryView historyView){
-    	return historyView.getDeathLogs(stateView.getTurnNumber() - 1).size()>= 0 ||
+    	return historyView.getDeathLogs(stateView.getTurnNumber() - 1).size()> 0 ||
     			historyView.getDamageLogs(stateView.getTurnNumber() - 1).size() > 0;
     }
 
@@ -298,12 +298,14 @@ public class RLAgent extends Agent {
 		}
         // Save your weights
         saveWeights(weights);
+        /*
 		for (Unit.UnitView unit : stateView.getUnits(playernum)) {
 			String unitTypeName = unit.getTemplateView().getName();
 			if (unitTypeName.equals("Footman")) {
 				System.out.println("WONNNNNN");
 			}
 		}
+		*/
 
     }
 
