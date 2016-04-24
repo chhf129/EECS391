@@ -173,7 +173,6 @@ public class RLAgent extends Agent {
      */
     @Override
     public void terminalStep(State.StateView stateView, History.HistoryView historyView) {
-
         // MAKE SURE YOU CALL printTestData after you finish a test episode.
 
         // Save your weights
