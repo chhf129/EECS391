@@ -246,14 +246,22 @@ public class RLAgent extends Agent {
      */
     @Override
     public void terminalStep(State.StateView stateView, History.HistoryView historyView) {
-    	testResults.add(currentEpisodeReward);
+    	if (evaluationMode){
+    		testResults.add(currentEpisodeReward);
+    	}
     	numEpisodesPlayed++;
         // MAKE SURE YOU CALL printTestData after you finish a test episode.
-    	if(numEpisodesPlayed>=10){
+    	if(numEpisodesPlayed%15==0){
     		printTestData(testResults);
     	}
         // Save your weights
         saveWeights(weights);
+		for (Unit.UnitView unit : stateView.getUnits(playernum)) {
+			String unitTypeName = unit.getTemplateView().getName();
+			if (unitTypeName.equals("Footman")) {
+				System.out.println("WONNNNNN");
+			}
+		}
 
     }
 
