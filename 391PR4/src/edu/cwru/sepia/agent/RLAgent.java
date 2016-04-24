@@ -34,7 +34,6 @@ public class RLAgent extends Agent {
     private int numEpisodesPlayed=0;
     //stores estimated Q value on assignment of an action
     private List<Double> oldQValues;
-
     /**
      * Convenience variable specifying enemy agent number. Use this whenever referring
      * to the enemy agent. We will make sure it is set to the proper number when testing your code.
@@ -177,26 +176,14 @@ public class RLAgent extends Agent {
     	if(stateView.getTurnNumber() > 0){
     		
     		actionResults= historyView.getCommandFeedback(playernum, stateView.getTurnNumber() - 1);
+    		/*
     	    for(ActionResult result : actionResults.values()) {
     	        System.out.println(result.toString());
     	    }
-    		
+    		*/
     		//if not event point keep execute the same action
     		if (!ifEventPoint(stateView,historyView)){
     			return returnActions;
-    		}
-    		
-        	double oldReward;
-        	int targetID;
-        	double oldFeatureVector[];
-    		for(int footmanID : myFootmen){
-    			oldReward=calculateReward(stateView,historyView,footmanID);
-    			currentEpisodeReward+=oldReward;
-    			targetID=attackMap.get(footmanID);
-    			oldFeatureVector=calculateFeatureVector(stateView, historyView, footmanID, targetID);
-        		if (!evaluationMode){
-        			weights=updateWeights(weights,oldFeatureVector,oldReward,stateView,historyView,footmanID);
-        		}
     		}
     		
     		//remove all dead units
@@ -211,6 +198,23 @@ public class RLAgent extends Agent {
     				//remove from attackMap?
     			}
     		}
+    		
+        	double oldReward;
+        	int targetID;
+        	double oldFeatureVector[];
+    		for(int footmanID : myFootmen){
+    			oldReward=calculateReward(stateView,historyView,footmanID);
+    			currentEpisodeReward+=oldReward;
+    			targetID=attackMap.get(footmanID);
+    			if (stateView.getUnit(targetID)==null){
+    				continue;
+    			}
+    			oldFeatureVector=calculateFeatureVector(stateView, historyView, footmanID, targetID);
+        		if (!evaluationMode){
+        			weights=updateWeights(weights,oldFeatureVector,oldReward,stateView,historyView,footmanID);
+        		}
+    		}
+    		
     	}
     	
 		
@@ -225,8 +229,6 @@ public class RLAgent extends Agent {
     			returnActions.put(footmanID, Action.createCompoundAttack(footmanID, targetID));
     		}
 		}
-    	
-
     	
     	return returnActions;
     }
