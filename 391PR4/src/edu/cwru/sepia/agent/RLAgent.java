@@ -66,7 +66,8 @@ public class RLAgent extends Agent {
     
     //total reward for current episode
     private double currentEpisodeReward=0.0;
-    private List<Double> testResults;
+    private List<Double> runningResults;
+    private List<Double> evaluationResults;
     
     //Map<AttackerID,DefenderID> contains information about which unit is attacking which unit
     private Map<Integer,Integer> attackMap;
@@ -141,7 +142,12 @@ public class RLAgent extends Agent {
         }
         currentEpisodeReward=0.0;
         evaluationMode=(numEpisodesPlayed % 15)>9;
-        testResults = new LinkedList<Double>();
+        if (runningResults == null){
+        	runningResults = new LinkedList<Double>();
+        }
+        if (evaluationResults == null){
+        	evaluationResults = new LinkedList<Double>();
+        }
         attackMap=new HashMap<>(myFootmen.size());
         
         if (numEpisodesPlayed>1){
@@ -272,16 +278,23 @@ public class RLAgent extends Agent {
      * It is also a good idea to save your weights with the saveWeights function.
      */
     @Override
-    public void terminalStep(State.StateView stateView, History.HistoryView historyView) {
+    public void terminalStep(State.StateView stateView, History.HistoryView historyView) {   	
+    	numEpisodesPlayed++; 
     	if (evaluationMode){
-    		testResults.add(currentEpisodeReward);
+    		evaluationResults.add(currentEpisodeReward);
+    		if (numEpisodesPlayed%5==0){
+    			double total = 0;
+    			for (Double d: evaluationResults){
+    				total += d;
+    			}
+    			runningResults.add(total/5);
+    		}
+            // MAKE SURE YOU CALL printTestData after you finish a test episode.
+    		if (numEpisodesPlayed >= numEpisodes){
+    			printTestData(runningResults);
+    		}
     	}
-    	numEpisodesPlayed++;
-        // MAKE SURE YOU CALL printTestData after you finish a test episode.
-    	if(numEpisodesPlayed%15==0){
-    		printTestData(testResults);
-    		//System.out.println("GAMES PALYED:"+numEpisodesPlayed);
-    	}
+
         // Save your weights
         saveWeights(weights);
         /*
