@@ -40,7 +40,7 @@ public class RLAgent extends Agent {
      * to the enemy agent. We will make sure it is set to the proper number when testing your code.
      */
     public static final int ENEMY_PLAYERNUM = 1;
-
+ 
     /**
      * Set this to whatever size your feature vector is.
      */
