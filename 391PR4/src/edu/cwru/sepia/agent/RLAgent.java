@@ -29,6 +29,9 @@ public class RLAgent extends Agent {
     private List<Integer> enemyFootmen;
     //stores targets of each of player's footman (-1 means no target or footman is dead)
     private List<Integer> targets;
+    
+    private boolean evaluationMode=false;
+    private int numEpisodesPlayed=0;
 
     /**
      * Convenience variable specifying enemy agent number. Use this whenever referring
@@ -59,6 +62,7 @@ public class RLAgent extends Agent {
     public final double gamma = 0.9;
     public final double learningRate = .0001;
     public final double epsilon = .02;
+    private double currentEpisodeReward=0.0;
 
     public RLAgent(int playernum, String[] args) {
         super(playernum);
@@ -126,7 +130,8 @@ public class RLAgent extends Agent {
         for (int i: myFootmen){
         	targets.add(-1);
         }
-
+        currentEpisodeReward=0.0;
+        evaluationMode=(numEpisodesPlayed % 15)>10;
         return middleStep(stateView, historyView);
     }
 
@@ -158,7 +163,67 @@ public class RLAgent extends Agent {
      */
     @Override
     public Map<Integer, Action> middleStep(State.StateView stateView, History.HistoryView historyView) {
-        return null;
+    	
+    	Map<Integer, ActionResult> actionResults=null;
+    	if(stateView.getTurnNumber() > 0){
+    		
+    		actionResults= historyView.getCommandFeedback(playernum, stateView.getTurnNumber() - 1);
+    	    for(ActionResult result : actionResults.values()) {
+    	        System.out.println(result.toString());
+    	       }
+    		//remove all dead units
+    		for(DeathLog deathLog : historyView.getDeathLogs(stateView.getTurnNumber() - 1)){
+    			if(deathLog.getController() == playernum){
+    				myFootmen.remove(this.myFootmen.indexOf(deathLog.getDeadUnitID()));
+    			}
+    			else if(deathLog.getController() == ENEMY_PLAYERNUM)
+    			{
+    				enemyFootmen.remove(enemyFootmen.indexOf(deathLog.getDeadUnitID()));
+    				
+    			}
+    		}
+    	}
+    	
+    	Map<Integer, Action> returnActions = new HashMap<Integer, Action>(myFootmen.size());
+    	
+    	
+    	
+    	
+    	
+    	double reward;
+    	int target;
+    	
+    	if (stateView.getTurnNumber() >0){
+    		
+    		//if no one dead keep execute the same action
+    		if (!ifEventPoint(stateView,historyView)){
+    			return returnActions;
+    		}
+    		for(int footmanID : myFootmen){
+    			
+    			
+    			//add actions
+    			
+    			reward=calculateReward(stateView,historyView,footmanID);
+    			currentEpisodeReward+=reward;
+    			//TODO old feature
+        		if (!evaluationMode){
+        		//	weights=updateWeights
+        		}
+    		}
+
+    	}
+    	
+    	return returnActions;
+    	
+    	
+    	
+    	
+
+    }
+    
+    private boolean ifEventPoint(State.StateView stateView, History.HistoryView historyView){
+    	return historyView.getDeathLogs(stateView.getTurnNumber() - 1).size()>= 0;
     }
 
     /**
@@ -169,7 +234,7 @@ public class RLAgent extends Agent {
      */
     @Override
     public void terminalStep(State.StateView stateView, History.HistoryView historyView) {
-
+    	numEpisodesPlayed++;
         // MAKE SURE YOU CALL printTestData after you finish a test episode.
 
         // Save your weights
