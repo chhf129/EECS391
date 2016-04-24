@@ -66,6 +66,7 @@ public class RLAgent extends Agent {
     public final double epsilon = .02;
     private double currentEpisodeReward=0.0;
     private List<Double> testResults;
+    private Map<Integer,Integer> attackMap;
 
     public RLAgent(int playernum, String[] args) {
         super(playernum);
@@ -138,6 +139,7 @@ public class RLAgent extends Agent {
         currentEpisodeReward=0.0;
         evaluationMode=(numEpisodesPlayed % 15)>10;
         testResults = new LinkedList<Double>();
+        attackMap=new HashMap<>(myFootmen.size());
         return middleStep(stateView, historyView);
     }
 
@@ -168,68 +170,70 @@ public class RLAgent extends Agent {
      * @return New actions to execute or nothing if an event has not occurred.
      */
     @Override
-    public Map<Integer, Action> middleStep(State.StateView stateView, History.HistoryView historyView) {
+   public Map<Integer, Action> middleStep(State.StateView stateView, History.HistoryView historyView) {
     	
     	Map<Integer, ActionResult> actionResults=null;
+    	Map<Integer, Action> returnActions = new HashMap<Integer, Action>();
     	if(stateView.getTurnNumber() > 0){
     		
     		actionResults= historyView.getCommandFeedback(playernum, stateView.getTurnNumber() - 1);
     	    for(ActionResult result : actionResults.values()) {
     	        System.out.println(result.toString());
-    	       }
+    	    }
+    		
+    		//if not event point keep execute the same action
+    		if (!ifEventPoint(stateView,historyView)){
+    			return returnActions;
+    		}
+    		
+        	double oldReward;
+        	int targetID;
+        	double oldFeatureVector[];
+    		for(int footmanID : myFootmen){
+    			oldReward=calculateReward(stateView,historyView,footmanID);
+    			currentEpisodeReward+=oldReward;
+    			targetID=attackMap.get(footmanID);
+    			oldFeatureVector=calculateFeatureVector(stateView, historyView, footmanID, targetID);
+        		if (!evaluationMode){
+        			weights=updateWeights(weights,oldFeatureVector,oldReward,stateView,historyView,footmanID);
+        		}
+    		}
+    		
     		//remove all dead units
     		for(DeathLog deathLog : historyView.getDeathLogs(stateView.getTurnNumber() - 1)){
     			if(deathLog.getController() == playernum){
     				myFootmen.remove(this.myFootmen.indexOf(deathLog.getDeadUnitID()));
+    				attackMap.remove(deathLog.getDeadUnitID());
     			}
     			else if(deathLog.getController() == ENEMY_PLAYERNUM)
     			{
     				enemyFootmen.remove(enemyFootmen.indexOf(deathLog.getDeadUnitID()));
-    				
+    				//remove from attackMap?
     			}
     		}
     	}
     	
-    	Map<Integer, Action> returnActions = new HashMap<Integer, Action>(myFootmen.size());
-    	
-    	
-    	
-    	
-    	
-    	double reward;
-    	int target;
-    	
-    	if (stateView.getTurnNumber() >0){
-    		
-    		//if no one dead keep execute the same action
-    		if (!ifEventPoint(stateView,historyView)){
-    			return returnActions;
+		
+		//add action to footman who has not action
+    	int targetID;
+    	for(int footmanID : myFootmen){
+    		if(actionResults == null || !actionResults.containsKey(footmanID) || 
+    				actionResults.get(footmanID).getFeedback().equals(ActionFeedback.COMPLETED) ||
+    				actionResults.get(footmanID).getFeedback().equals(ActionFeedback.FAILED)){
+    			targetID = selectAction(stateView, historyView, footmanID);
+    			
+    			returnActions.put(footmanID, Action.createCompoundAttack(footmanID, targetID));
     		}
-    		for(int footmanID : myFootmen){
-    			
-    			
-    			//add actions
-    			
-    			reward=calculateReward(stateView,historyView,footmanID);
-    			currentEpisodeReward+=reward;
-    			//TODO old feature
-        		if (!evaluationMode){
-        		//	weights=updateWeights
-        		}
-    		}
+		}
+    	
 
-    	}
     	
     	return returnActions;
-    	
-    	
-    	
-    	
-
     }
     
     private boolean ifEventPoint(State.StateView stateView, History.HistoryView historyView){
-    	return historyView.getDeathLogs(stateView.getTurnNumber() - 1).size()>= 0;
+    	return historyView.getDeathLogs(stateView.getTurnNumber() - 1).size()>= 0 ||
+    			historyView.getDamageLogs(stateView.getTurnNumber() - 1).size() > 0;
     }
 
     /**
@@ -261,8 +265,8 @@ public class RLAgent extends Agent {
      * @param footmanId The footman we are updating the weights for
      * @return The updated weight vector.
      */
-    public double[] updateWeights(double[] oldWeights, double[] oldFeatures, double totalReward, State.StateView stateView, History.HistoryView historyView, int footmanId) {
-        double[] newWeights = new double[oldWeights.length];
+    public Double[] updateWeights(Double[] oldWeights, double[] oldFeatures, double totalReward, State.StateView stateView, History.HistoryView historyView, int footmanId) {
+        Double[] newWeights = new Double[oldWeights.length];
         for (int i=0; i<newWeights.length; i++){
         	//calculate argmaxQ(s',a')
         	double bestQ = Double.NEGATIVE_INFINITY;
