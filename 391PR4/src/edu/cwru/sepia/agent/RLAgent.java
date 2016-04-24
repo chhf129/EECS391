@@ -293,7 +293,7 @@ public class RLAgent extends Agent {
     	}
     	System.out.println("****EPISODES PLAYED: " + numEpisodesPlayed);
         // MAKE SURE YOU CALL printTestData after you finish a test episode.
-		if (numEpisodesPlayed >= 1.5*1000){
+		if (numEpisodesPlayed >= 1000){
 			printTestData(runningResults);
 		}
         // Save your weights
