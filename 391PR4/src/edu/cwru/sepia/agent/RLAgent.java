@@ -221,7 +221,7 @@ public class RLAgent extends Agent {
     				actionResults.get(footmanID).getFeedback().equals(ActionFeedback.COMPLETED) ||
     				actionResults.get(footmanID).getFeedback().equals(ActionFeedback.FAILED)){
     			targetID = selectAction(stateView, historyView, footmanID);
-    			
+    			attackMap.put(footmanID, targetID);
     			returnActions.put(footmanID, Action.createCompoundAttack(footmanID, targetID));
     		}
 		}
