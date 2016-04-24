@@ -63,8 +63,12 @@ public class RLAgent extends Agent {
     public final double gamma = 0.9;
     public final double learningRate = .0001;
     public final double epsilon = .02;
+    
+    //total reward for current episode
     private double currentEpisodeReward=0.0;
     private List<Double> testResults;
+    
+    //Map<AttackerID,DefenderID> contains information about which unit is attacking which unit
     private Map<Integer,Integer> attackMap;
 
     public RLAgent(int playernum, String[] args) {
@@ -101,9 +105,9 @@ public class RLAgent extends Agent {
      */
     @Override
     public Map<Integer, Action> initialStep(State.StateView stateView, History.HistoryView historyView) {
-
+    	
         // You will need to add code to check if you are in a testing or learning episode
-
+    	
         // Find all of your units
         myFootmen = new LinkedList<>();
         for (Integer unitId : stateView.getUnitIds(playernum)) {
@@ -136,9 +140,14 @@ public class RLAgent extends Agent {
         	oldQValues.add(-1.0);
         }
         currentEpisodeReward=0.0;
-        evaluationMode=(numEpisodesPlayed % 15)>10;
+        evaluationMode=(numEpisodesPlayed % 15)>9;
         testResults = new LinkedList<Double>();
         attackMap=new HashMap<>(myFootmen.size());
+        
+        if (numEpisodesPlayed>1){
+        	weights= loadWeights();
+        }
+        
         return middleStep(stateView, historyView);
     }
 
@@ -168,19 +177,25 @@ public class RLAgent extends Agent {
      *
      * @return New actions to execute or nothing if an event has not occurred.
      */
+    /*
+     * 	if event point(at least one unit is damaged or dead), 
+     *  	remove all dead unit from storage list
+     *  	update weights
+     *  
+     *  add action to unit who has nothing to do
+     *  
+     */
     @Override
    public Map<Integer, Action> middleStep(State.StateView stateView, History.HistoryView historyView) {
-    	
+    	//action feedback from previous step
     	Map<Integer, ActionResult> actionResults=null;
+    	
+    	//action map contains action for current step
     	Map<Integer, Action> returnActions = new HashMap<Integer, Action>();
     	if(stateView.getTurnNumber() > 0){
     		
     		actionResults= historyView.getCommandFeedback(playernum, stateView.getTurnNumber() - 1);
-    		/*
-    	    for(ActionResult result : actionResults.values()) {
-    	        System.out.println(result.toString());
-    	    }
-    		*/
+
     		//if not event point keep execute the same action
     		if (!ifEventPoint(stateView,historyView)){
     			return returnActions;
@@ -195,17 +210,22 @@ public class RLAgent extends Agent {
     			else if(deathLog.getController() == ENEMY_PLAYERNUM)
     			{
     				enemyFootmen.remove(enemyFootmen.indexOf(deathLog.getDeadUnitID()));
-    				//remove from attackMap?
+    				
     			}
     		}
+    		
+    		//update reward for each my footmen
+    		//because dead units are removed beforewards, weights for dead units are not updated
     		
         	double oldReward;
         	int targetID;
         	double oldFeatureVector[];
+        	
     		for(int footmanID : myFootmen){
     			oldReward=calculateReward(stateView,historyView,footmanID);
     			currentEpisodeReward+=oldReward;
     			targetID=attackMap.get(footmanID);
+    			//when target for this footman is dead, iterate to next footman
     			if (stateView.getUnit(targetID)==null){
     				continue;
     			}
@@ -221,10 +241,14 @@ public class RLAgent extends Agent {
 		//add action to footman who has not action
     	int targetID;
     	for(int footmanID : myFootmen){
+    		
+    		//see if this footman can add action
     		if(actionResults == null || !actionResults.containsKey(footmanID) || 
     				actionResults.get(footmanID).getFeedback().equals(ActionFeedback.COMPLETED) ||
     				actionResults.get(footmanID).getFeedback().equals(ActionFeedback.FAILED)){
     			targetID = selectAction(stateView, historyView, footmanID);
+    			
+    			//add to attackMap so we know this footman is attacking which target
     			attackMap.put(footmanID, targetID);
     			returnActions.put(footmanID, Action.createCompoundAttack(footmanID, targetID));
     		}
@@ -233,6 +257,9 @@ public class RLAgent extends Agent {
     	return returnActions;
     }
     
+    /*
+     * event point is when at least one unit is dead or get hit
+     */
     private boolean ifEventPoint(State.StateView stateView, History.HistoryView historyView){
     	return historyView.getDeathLogs(stateView.getTurnNumber() - 1).size()>= 0 ||
     			historyView.getDamageLogs(stateView.getTurnNumber() - 1).size() > 0;
