@@ -288,13 +288,14 @@ public class RLAgent extends Agent {
     				total += d;
     			}
     			runningResults.add(total/5);
-    		}
-            // MAKE SURE YOU CALL printTestData after you finish a test episode.
-    		if (numEpisodesPlayed >= numEpisodes){
-    			printTestData(runningResults);
+    			evaluationResults.clear();
     		}
     	}
-
+    	System.out.println("****EPISODES PLAYED: " + numEpisodesPlayed);
+        // MAKE SURE YOU CALL printTestData after you finish a test episode.
+		if (numEpisodesPlayed >= 1.5*1000){
+			printTestData(runningResults);
+		}
         // Save your weights
         saveWeights(weights);
 		for (Unit.UnitView unit : stateView.getUnits(playernum)) {
