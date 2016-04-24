@@ -32,6 +32,8 @@ public class RLAgent extends Agent {
     
     private boolean evaluationMode=false;
     private int numEpisodesPlayed=0;
+    //stores estimated Q value on assignment of an action
+    private List<Double> oldQValues;
 
     /**
      * Convenience variable specifying enemy agent number. Use this whenever referring
@@ -127,8 +129,10 @@ public class RLAgent extends Agent {
             }
         }
         targets = new LinkedList<>();
+        oldQValues = new LinkedList<>();
         for (int i: myFootmen){
         	targets.add(-1);
+        	oldQValues.add(-1.0);
         }
         currentEpisodeReward=0.0;
         evaluationMode=(numEpisodesPlayed % 15)>10;
@@ -253,7 +257,18 @@ public class RLAgent extends Agent {
      * @return The updated weight vector.
      */
     public double[] updateWeights(double[] oldWeights, double[] oldFeatures, double totalReward, State.StateView stateView, History.HistoryView historyView, int footmanId) {
-        return null;
+        double[] newWeights = new double[oldWeights.length];
+        for (int i=0; i<newWeights.length; i++){
+        	//calculate argmaxQ(s',a')
+        	double bestQ = Double.NEGATIVE_INFINITY;
+        	for (int n: enemyFootmen){
+        		bestQ = Math.max(bestQ, calcQValue(stateView, historyView, footmanId, n));
+        	}
+        	//update weight according to wi <- wi + learningRate(reward + gamma(argmaxQ(s',a')) - Q(s,a))f(s,a)
+        	newWeights[i] = oldWeights[i] + 
+        			learningRate*oldFeatures[i]*(totalReward + gamma*bestQ - oldQValues.get(myFootmen.indexOf(footmanId)));
+        }
+    	return newWeights;
     }
 
     /**
@@ -276,6 +291,7 @@ public class RLAgent extends Agent {
         		targetId = t;
         	}
         }
+        oldQValues.set(myFootmen.indexOf(attackerId), targetQ);
     	return targetId;
     }
 
