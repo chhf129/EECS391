@@ -291,10 +291,10 @@ public class RLAgent extends Agent {
     			evaluationResults.clear();
     		}
     	}
-    	System.out.println("****EPISODES PLAYED: " + numEpisodesPlayed);
         // MAKE SURE YOU CALL printTestData after you finish a test episode.
-		if (numEpisodesPlayed >= 1000){
+		if (numEpisodesPlayed >= 1500){
 			printTestData(runningResults);
+			printData(runningResults);
 		}
         // Save your weights
         saveWeights(weights);
@@ -307,6 +307,12 @@ public class RLAgent extends Agent {
 		}
 		*/
 
+    }
+    
+    private void printData(List<Double> values){
+    	for (int i=0; i<values.size(); i++){
+    		System.out.println(values.get(i));
+    	}
     }
 
     /**
