@@ -293,7 +293,7 @@ public class RLAgent extends Agent {
     		}
     	}
         // MAKE SURE YOU CALL printTestData after you finish a test episode.
-		if (numEpisodesPlayed >= 1500){
+		if (numEpisodesPlayed >= numEpisodes*1.5){
 			printTestData(runningResults);
 			printData(runningResults);
 		}
