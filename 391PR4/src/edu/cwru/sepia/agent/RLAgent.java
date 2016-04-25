@@ -49,7 +49,7 @@ public class RLAgent extends Agent {
      * change this seed so make sure that your agent works for more than the default seed.
      */
     public final Random random = new Random(12345);
-
+    
     /**
      * Your Q-function weights.
      */
@@ -63,6 +63,7 @@ public class RLAgent extends Agent {
     public final double gamma = 0.9;
     public final double learningRate = .0001;
     public final double epsilon = .02;
+    private double currentEpsilon=epsilon;
     
     //total reward for current episode
     private double currentEpisodeReward=0.0;
@@ -298,6 +299,13 @@ public class RLAgent extends Agent {
 		}
         // Save your weights
         saveWeights(weights);
+        
+        if (numEpisodesPlayed%15==0){
+        	currentEpsilon-=0.002;
+        	if (currentEpsilon<0){
+        		currentEpsilon=0;
+        	}
+        }
         /*
 		for (Unit.UnitView unit : stateView.getUnits(playernum)) {
 			String unitTypeName = unit.getTemplateView().getName();
@@ -346,6 +354,14 @@ public class RLAgent extends Agent {
     //select action with greatest Q value
     public int selectAction(State.StateView stateView, History.HistoryView historyView, int attackerId) {
         int targetId=-1;
+		if (!evaluationMode && (currentEpsilon > random.nextDouble())) {
+			//choose random enemy
+			Random ran = new Random();
+			int i = ran.nextInt(enemyFootmen.size());
+			targetId=enemyFootmen.get(i);
+		}
+		else{
+			
         double targetQ = Double.NEGATIVE_INFINITY;
         for (int t: enemyFootmen){
         	double q = calcQValue(stateView, historyView, attackerId, t);
@@ -355,6 +371,7 @@ public class RLAgent extends Agent {
         	}
         }
         oldQValues.set(myFootmen.indexOf(attackerId), targetQ);
+		}
     	return targetId;
     }
 
@@ -428,7 +445,6 @@ public class RLAgent extends Agent {
     		t--;
     	}
     	reward += (-0.1 * stateView.getTurnNumber() - t);
-    	
         return reward;
     }
 
